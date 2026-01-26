@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 export function ContratacionPage() {
   const location = useLocation();
-  const isContratacion = location.pathname === '/contratacion';
 
   return (
     <div className="min-h-screen flex flex-col">
