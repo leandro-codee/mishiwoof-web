@@ -1,22 +1,32 @@
 /**
  * PlanesyCoberturasPage Component
  * 
- * Plans and coverage page
+ * Plans and coverage page - consumes /api/v1/plans
  */
 
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { usePlansList } from '@modules/plans/presentation/hooks/usePlans';
+import { useAuth } from '@modules/auth/presentation/hooks/useAuth';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const PLAN_COLORS = ['bg-pink-200', 'bg-blue-200', 'bg-green-200', 'bg-yellow-200', 'bg-purple-200'];
+const PLAN_DOT_COLORS = ['bg-pink-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'];
 
 export function PlanesyCoberturasPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isPlanes = location.pathname === '/planes-y-coberturas';
+  const { isAuthenticated } = useAuth();
+  const { data: plans = [], isLoading } = usePlansList();
 
-  const plans = [
-    { id: 2, name: 'Plan 02', subtitle: 'Only', image: 'path2 img.svg', color: 'bg-blue-200', dotColor: 'bg-blue-500' },
-    { id: 3, name: 'Plan 03', subtitle: 'Always', image: 'path3 img.svg', color: 'bg-green-200', dotColor: 'bg-green-500' },
-    { id: 4, name: 'Plan 04', subtitle: 'Prime', image: 'path4 img.svg', color: 'bg-yellow-200', dotColor: 'bg-yellow-500' },
-    { id: 5, name: 'Plan 05', subtitle: 'Exotic', image: 'path5 img.svg', color: 'bg-purple-200', dotColor: 'bg-purple-500' },
-  ];
+  const handleContratar = (planId: string) => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/contratacion', planId } });
+      return;
+    }
+    navigate('/contratacion', { state: { planId } });
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -107,7 +117,7 @@ export function PlanesyCoberturasPage() {
                       asChild
                       className="bg-[#FF6F61] text-white hover:bg-[#FF6F61]/90 rounded-full px-6 md:px-8"
                     >
-                      <Link to="/contratacion">Contratar</Link>
+                      <Link to="/contratacion" state={plans[0] ? { planId: plans[0].id } : undefined}>Contratar</Link>
                     </Button>
                     <Link 
                       to="/sucursal-virtual" 
@@ -143,36 +153,42 @@ export function PlanesyCoberturasPage() {
             <h2 className="text-3xl md:text-4xl font-bold text-black text-center mb-8 md:mb-12">
               Mishiwoof Planes
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {plans.map((plan) => (
-                <div 
-                  key={plan.id} 
-                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100"
-                >
-                  <div className={`${plan.color} h-32 md:h-40 flex items-center justify-center p-4`}>
-                    <img 
-                      src={`/assets/${plan.image}`} 
-                      alt={plan.name} 
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-lg md:text-xl font-bold text-black mb-1">{plan.name}</h3>
-                    <p className="text-sm md:text-base font-semibold text-gray-700 mb-3">{plan.subtitle}</p>
-                    <div className="flex items-center justify-between">
-                      <Link 
-                        to="/planes-y-coberturas" 
-                        className="text-sm md:text-base text-black hover:text-[#FF6F61] transition-colors flex items-center gap-1"
-                      >
-                        Más info
-                        <span>→</span>
-                      </Link>
-                      <div className={`w-3 h-3 rounded-full ${plan.dotColor}`}></div>
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} className="h-48 rounded-xl" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                {plans.filter((p) => p.is_published).map((plan, idx) => (
+                  <div 
+                    key={plan.id} 
+                    className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100"
+                  >
+                    <div className={`${PLAN_COLORS[idx % PLAN_COLORS.length]} h-32 md:h-40 flex items-center justify-center p-4`}>
+                      {plan.image_url ? (
+                        <img src={plan.image_url} alt={plan.name} className="w-full h-full object-contain" />
+                      ) : (
+                        <span className="text-4xl font-bold text-gray-600">{plan.name.slice(0, 1)}</span>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-lg md:text-xl font-bold text-black mb-1">{plan.name}</h3>
+                      <p className="text-sm md:text-base font-semibold text-gray-700 mb-2">
+                        {plan.base_price_uf} UF/mes
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <Button variant="ghost" className="text-[#FF6F61] p-0 h-auto" onClick={() => handleContratar(plan.id)}>
+                          Contratar
+                        </Button>
+                        <div className={`w-3 h-3 rounded-full ${PLAN_DOT_COLORS[idx % PLAN_DOT_COLORS.length]}`}></div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>

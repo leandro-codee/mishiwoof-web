@@ -1,15 +1,25 @@
 /**
  * SucursalVirtualPage Component
  * 
- * Virtual branch page
+ * Virtual branch - perfil, mascotas, suscripciones
  */
 
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@modules/auth/presentation/hooks/useAuth';
+import { useMe } from '@modules/users/presentation/hooks/useUsers';
+import { usePetsList } from '@modules/pets/presentation/hooks/usePets';
+import { useSubscriptions } from '@modules/billing/presentation/hooks/useBilling';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function SucursalVirtualPage() {
   const location = useLocation();
   const isSucursal = location.pathname === '/sucursal-virtual';
+  const { logout, user: authUser } = useAuth();
+  const { data: profile, isLoading: loadingProfile } = useMe();
+  const { data: pets = [], isLoading: loadingPets } = usePetsList();
+  const { data: subscriptions = [], isLoading: loadingSubs } = useSubscriptions();
+  const displayName = profile?.first_name ?? profile?.last_name ?? authUser?.email ?? 'Usuario';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -65,34 +75,63 @@ export function SucursalVirtualPage() {
             {/* Welcome Section */}
             <div className="mb-8">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-2">
-                Bienvenido a la{' '}
+                Bienvenido{authUser?.email?.endsWith('a') ? 'a' : ''} a la{' '}
                 <span className="text-[#FF6F61]">sucursal virtual</span>
               </h1>
+              {loadingProfile ? (
+                <Skeleton className="h-6 w-48" />
+              ) : (
+                <p className="text-gray-600">{displayName} · {profile?.email ?? authUser?.email}</p>
+              )}
             </div>
 
             {/* Pet Profile Module */}
             <div className="bg-gray-100 rounded-xl p-6 md:p-8 mb-8">
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <div className="w-32 h-32 md:w-40 md:h-40 rounded-xl overflow-hidden bg-white flex-shrink-0">
-                  <img 
-                    src="/assets/gato_fondo.png" 
-                    alt="Mascota" 
-                    className="w-full h-full object-cover"
-                  />
+              <h2 className="text-lg font-semibold text-black mb-4">Mis mascotas</h2>
+              {loadingPets ? (
+                <Skeleton className="h-24 w-full rounded-lg" />
+              ) : pets.length === 0 ? (
+                <p className="text-gray-600">Aún no tienes mascotas. <Link to="/contratacion" className="text-[#FF6F61] underline">Contratar plan</Link></p>
+              ) : (
+                <div className="space-y-4">
+                  {pets.map((pet) => (
+                    <div key={pet.id} className="flex flex-col md:flex-row items-center md:items-start gap-4 bg-white rounded-lg p-4">
+                      <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
+                        {pet.photo_url ? (
+                          <img src={pet.photo_url} alt={pet.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-2xl">🐾</div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-black">{pet.name}</p>
+                        <p className="text-sm text-gray-700">{pet.species} · {pet.age} años</p>
+                        {pet.weight_kg != null && <p className="text-sm text-gray-700">Peso: {pet.weight_kg} kg</p>}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex-1 space-y-2 text-center md:text-left">
-                  <p className="text-base md:text-lg font-semibold text-black">
-                    Nombre Mascota
-                  </p>
-                  <p className="text-sm md:text-base text-gray-700">
-                    Edad
-                  </p>
-                  <p className="text-sm md:text-base text-gray-700">
-                    Peso
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
+
+            {/* Subscriptions */}
+            {subscriptions.length > 0 && (
+              <div className="bg-gray-100 rounded-xl p-6 md:p-8 mb-8">
+                <h2 className="text-lg font-semibold text-black mb-4">Mis suscripciones</h2>
+                {loadingSubs ? (
+                  <Skeleton className="h-16 w-full rounded-lg" />
+                ) : (
+                  <ul className="space-y-2">
+                    {subscriptions.map((s) => (
+                      <li key={s.id} className="flex justify-between items-center bg-white rounded-lg p-3">
+                        <span className="font-medium">{s.plan_name ?? s.plan_id}</span>
+                        <span className="text-sm text-gray-600">{s.status} · {s.final_price_uf} UF/mes</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
 
             {/* Action Links */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
@@ -143,7 +182,7 @@ export function SucursalVirtualPage() {
                   <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
                 </svg>
               </Link>
-              <Button className="bg-[#FF6F61] text-white hover:bg-[#FF6F61]/90 rounded-lg px-6 md:px-8">
+              <Button className="bg-[#FF6F61] text-white hover:bg-[#FF6F61]/90 rounded-lg px-6 md:px-8" onClick={() => logout()}>
                 Cerrar sesión
               </Button>
             </div>

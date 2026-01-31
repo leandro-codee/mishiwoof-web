@@ -6,10 +6,12 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@modules/auth/presentation/hooks/useAuth';
 
 export function HomePage() {
   const location = useLocation();
   const isHome = location.pathname === '/home';
+  const { isAuthenticated } = useAuth();
 
   const plans = [
     { id: 1, name: 'Plan 01', subtitle: 'First', image: 'path1 img.svg', color: 'bg-pink-200', dotColor: 'bg-blue-500' },
@@ -52,16 +54,27 @@ export function HomePage() {
                   >
                     <Link to="/home">Home</Link>
                   </Button>
-                  <Link 
-                    to="/sucursal-virtual" 
-                    className={`text-sm md:text-base transition-all rounded-full px-4 md:px-6 py-2 border-2 ${
-                      location.pathname === '/sucursal-virtual'
-                        ? 'text-[#FF6F61] font-semibold border-transparent'
-                        : 'text-black border-transparent hover:border-violet-500'
-                    }`}
-                  >
-                    Mi cuenta
-                  </Link>
+                  {isAuthenticated ? (
+                    <Link 
+                      to="/sucursal-virtual" 
+                      className={`text-sm md:text-base transition-all rounded-full px-4 md:px-6 py-2 border-2 ${
+                        location.pathname === '/sucursal-virtual'
+                          ? 'text-[#FF6F61] font-semibold border-transparent'
+                          : 'text-black border-transparent hover:border-violet-500'
+                      }`}
+                    >
+                      Mi cuenta
+                    </Link>
+                  ) : (
+                    <>
+                      <Link to="/login" className="text-sm md:text-base rounded-full px-4 md:px-6 py-2 border-2 border-transparent hover:border-violet-500">
+                        Iniciar sesión
+                      </Link>
+                      <Button asChild className="bg-[#FF6F61] text-white rounded-full px-4 md:px-6">
+                        <Link to="/register">Registrarse</Link>
+                      </Button>
+                    </>
+                  )}
                   <Link 
                     to="/planes-y-coberturas" 
                     className={`text-sm md:text-base transition-all rounded-full px-4 md:px-6 py-2 border-2 ${

@@ -32,8 +32,8 @@ export class ApiError extends Error {
    */
   static fromAxiosError(error: AxiosError): ApiError {
     const statusCode = error.response?.status || 500;
-    const errorData = error.response?.data as any;
-    const message = errorData?.message || error.message || 'Unknown error';
+    const errorData = error.response?.data as { error?: { message?: string; code?: string; details?: unknown } } | undefined;
+    const message = errorData?.error?.message || (errorData as any)?.message || error.message || 'Unknown error';
 
     return new ApiError(message, statusCode, error, errorData);
   }
@@ -146,8 +146,9 @@ export class ApiError extends Error {
    * Returns a map of field names to error messages
    */
   getValidationErrors(): Record<string, string[]> | null {
-    if (this.isValidationError() && this.errorData?.errors) {
-      return this.errorData.errors;
+    const details = (this.errorData as any)?.error?.details ?? this.errorData?.errors;
+    if (this.isValidationError() && details) {
+      return details as Record<string, string[]>;
     }
     return null;
   }

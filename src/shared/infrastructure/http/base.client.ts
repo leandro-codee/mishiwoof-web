@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig, type AxiosResponse } from 'axios';
 import { ApiError } from './api.error';
-import { getInternalJwtToken } from './token.helper';
+import { getInternalJwtToken, clearAuthStorage } from './token.helper';
 
 /**
  * Configuration for the HTTP client
@@ -95,7 +95,7 @@ export class HttpClient {
   }
 
   /**
-   * Response interceptor - handle successful responses
+   * Response interceptor - handle successful responses and unwrap backend { success, data }
    */
   private handleResponse(response: AxiosResponse): AxiosResponse {
     // Check if response is HTML instead of JSON (common when server returns error page)
@@ -116,6 +116,11 @@ export class HttpClient {
         { originalResponse: response.data }
       );
       return Promise.reject(apiError) as any;
+    }
+
+    // Unwrap backend format { success: true, data: T } so callers receive T directly
+    if (response.data && typeof response.data === 'object' && 'success' in response.data && response.data.success === true && 'data' in response.data) {
+      response.data = (response.data as { data: unknown }).data;
     }
 
     // Log response in development
@@ -169,8 +174,7 @@ export class HttpClient {
     if (statusCode === 401) {
       console.warn(`[HTTP] Authentication error (401). User is not authenticated. Redirecting to login...`);
       
-      // Clear stored tokens
-      this.clearStoredToken();
+      clearAuthStorage();
       this.authToken = null;
 
       // Redirect to login page
@@ -216,22 +220,6 @@ export class HttpClient {
     } catch (error) {
       console.error('[HTTP] Error reading token from storage:', error);
       return null;
-    }
-  }
-
-  /**
-   * Clear token from storage
-   */
-  private clearStoredToken(): void {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    try {
-      localStorage.removeItem('auth_token');
-      sessionStorage.removeItem('auth_token');
-    } catch (error) {
-      console.error('[HTTP] Error clearing token from storage:', error);
     }
   }
 
