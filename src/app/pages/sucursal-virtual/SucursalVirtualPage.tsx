@@ -10,7 +10,9 @@ import { useAuth } from '@modules/auth/presentation/hooks/useAuth';
 import { useMe } from '@modules/users/presentation/hooks/useUsers';
 import { usePetsList } from '@modules/pets/presentation/hooks/usePets';
 import { useSubscriptions } from '@modules/billing/presentation/hooks/useBilling';
+import { useUnreadCount } from '@modules/notifications/presentation/hooks/useNotifications';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PaymentMethodsSection } from '@app/components/PaymentMethodsSection';
 
 export function SucursalVirtualPage() {
   const location = useLocation();
@@ -19,6 +21,8 @@ export function SucursalVirtualPage() {
   const { data: profile, isLoading: loadingProfile } = useMe();
   const { data: pets = [], isLoading: loadingPets } = usePetsList();
   const { data: subscriptions = [], isLoading: loadingSubs } = useSubscriptions();
+  const { data: unreadData } = useUnreadCount();
+  const unreadCount = (unreadData as { count?: number } | undefined)?.count ?? 0;
   const displayName = profile?.first_name ?? profile?.last_name ?? authUser?.email ?? 'Usuario';
 
   return (
@@ -58,6 +62,17 @@ export function SucursalVirtualPage() {
                   >
                     <Link to="/sucursal-virtual">Mi cuenta</Link>
                   </Button>
+                  <Link 
+                    to="/sucursal-virtual/notificaciones" 
+                    className="relative text-sm md:text-base rounded-full px-4 md:px-6 py-2 border-2 border-transparent hover:border-violet-500"
+                  >
+                    Notificaciones
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-[#FF6F61] text-white text-xs font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
+                  </Link>
                   <Link 
                     to="/planes-y-coberturas" 
                     className={`text-sm md:text-base transition-all rounded-full px-4 md:px-6 py-2 border-2 ${
@@ -114,6 +129,9 @@ export function SucursalVirtualPage() {
               )}
             </div>
 
+            {/* Payment methods */}
+            <PaymentMethodsSection />
+
             {/* Subscriptions */}
             {subscriptions.length > 0 && (
               <div className="bg-gray-100 rounded-xl p-6 md:p-8 mb-8">
@@ -136,7 +154,7 @@ export function SucursalVirtualPage() {
             {/* Action Links */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
               <Link 
-                to="/sucursal-virtual" 
+                to="/reclamos" 
                 className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-[#FF6F61] transition-colors"
               >
                 <span className="text-sm md:text-base text-black font-medium">
@@ -147,36 +165,36 @@ export function SucursalVirtualPage() {
                 </svg>
               </Link>
               <Link 
-                to="/sucursal-virtual" 
+                to="/reclamos" 
                 className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-[#FF6F61] transition-colors"
               >
                 <span className="text-sm md:text-base text-black font-medium">
                   Ver estado de mi bonificación
                 </span>
-                <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
-                  <span className="text-white text-lg font-bold">+</span>
-                </div>
+                <svg className="w-5 h-5 text-[#FF6F61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
               <Link 
-                to="/sucursal-virtual" 
+                to="/chat" 
                 className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-[#FF6F61] transition-colors"
               >
                 <span className="text-sm md:text-base text-black font-medium">
-                  Ver mi cuenta prioritaria
+                  ¿Tienes dudas? Escríbenos
                 </span>
-                <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
-                  <span className="text-white text-lg font-bold">+</span>
-                </div>
+                <svg className="w-5 h-5 text-[#FF6F61]" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                </svg>
               </Link>
             </div>
 
             {/* Bottom Actions */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <Link 
-                to="/sucursal-virtual" 
+                to="/chat" 
                 className="text-sm md:text-base text-black hover:text-[#FF6F61] transition-colors flex items-center gap-2"
               >
-                ¿tienes dudas? escríbenos
+                ¿Tienes dudas? Escríbenos
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
                   <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />

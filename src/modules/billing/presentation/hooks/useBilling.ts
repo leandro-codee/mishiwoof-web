@@ -78,3 +78,19 @@ export function useTokenizePaymentMethod() {
     onSuccess: () => qc.invalidateQueries({ queryKey: billingKeys.paymentMethods }),
   });
 }
+
+export function useSetPrimaryPaymentMethod() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: billingApi.setPrimaryPaymentMethod.bind(billingApi),
+    onSuccess: () => qc.invalidateQueries({ queryKey: billingKeys.paymentMethods }),
+  });
+}
+
+export function useDeletePaymentMethod() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: billingApi.deletePaymentMethod.bind(billingApi),
+    onSuccess: () => qc.invalidateQueries({ queryKey: billingKeys.paymentMethods }),
+  });
+}

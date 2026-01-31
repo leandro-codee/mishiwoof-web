@@ -8,7 +8,7 @@ import { useAuth } from '@modules/auth/presentation/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { getErrorMessage } from '@shared/infrastructure/http/api.error';
+import { getErrorMessage, getValidationDetails } from '@shared/infrastructure/http/api.error';
 import { toast } from 'sonner';
 
 export function RegisterPage() {
@@ -18,6 +18,7 @@ export function RegisterPage() {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +32,16 @@ export function RegisterPage() {
       toast.success('Cuenta creada correctamente');
       navigate('/sucursal-virtual', { replace: true });
     } catch (err) {
-      toast.error(getErrorMessage(err));
+      const details = getValidationDetails(err);
+      if (details) {
+        const flat: Record<string, string> = {};
+        for (const [k, v] of Object.entries(details)) flat[k] = (v as string[])[0] ?? '';
+        setFieldErrors(flat);
+        toast.error('Revisa los campos marcados.');
+      } else {
+        setFieldErrors({});
+        toast.error(getErrorMessage(err));
+      }
     }
   };
 
@@ -52,11 +62,12 @@ export function RegisterPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); setFieldErrors((p) => ({ ...p, email: '' })); }}
                 placeholder="tu@email.com"
-                className="mt-1"
+                className={`mt-1 ${fieldErrors.email ? 'border-red-500' : ''}`}
                 required
               />
+              {fieldErrors.email && <p className="text-sm text-red-600 mt-1">{fieldErrors.email}</p>}
             </div>
             <div>
               <Label htmlFor="password">Contraseña (mín. 8 caracteres)</Label>
@@ -64,12 +75,13 @@ export function RegisterPage() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); setFieldErrors((p) => ({ ...p, password: '' })); }}
                 placeholder="••••••••"
-                className="mt-1"
+                className={`mt-1 ${fieldErrors.password ? 'border-red-500' : ''}`}
                 minLength={8}
                 required
               />
+              {fieldErrors.password && <p className="text-sm text-red-600 mt-1">{fieldErrors.password}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -78,10 +90,11 @@ export function RegisterPage() {
                   id="firstName"
                   type="text"
                   value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  onChange={(e) => { setFirstName(e.target.value); setFieldErrors((p) => ({ ...p, first_name: '' })); }}
                   placeholder="Nombre"
-                  className="mt-1"
+                  className={`mt-1 ${fieldErrors.first_name ? 'border-red-500' : ''}`}
                 />
+                {fieldErrors.first_name && <p className="text-sm text-red-600 mt-1">{fieldErrors.first_name}</p>}
               </div>
               <div>
                 <Label htmlFor="lastName">Apellido</Label>
@@ -89,10 +102,11 @@ export function RegisterPage() {
                   id="lastName"
                   type="text"
                   value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  onChange={(e) => { setLastName(e.target.value); setFieldErrors((p) => ({ ...p, last_name: '' })); }}
                   placeholder="Apellido"
-                  className="mt-1"
+                  className={`mt-1 ${fieldErrors.last_name ? 'border-red-500' : ''}`}
                 />
+                {fieldErrors.last_name && <p className="text-sm text-red-600 mt-1">{fieldErrors.last_name}</p>}
               </div>
             </div>
             <Button

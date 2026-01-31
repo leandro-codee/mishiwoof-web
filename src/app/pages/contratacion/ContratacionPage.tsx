@@ -12,7 +12,7 @@ import { usePlansList, usePlan } from '@modules/plans/presentation/hooks/usePlan
 import { usePetsList, useCreatePet } from '@modules/pets/presentation/hooks/usePets';
 import { useCreateSubscription, useProcessPayment, usePaymentMethods } from '@modules/billing/presentation/hooks/useBilling';
 import { useValidateCoupon } from '@modules/coupons/presentation/hooks/useCoupons';
-import { getErrorMessage } from '@shared/infrastructure/http/api.error';
+import { getErrorMessage, getValidationDetails } from '@shared/infrastructure/http/api.error';
 import { toast } from 'sonner';
 
 export function ContratacionPage() {
@@ -36,8 +36,19 @@ export function ContratacionPage() {
   const [couponCode, setCouponCode] = useState('');
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
   const [step, setStep] = useState<'pet' | 'subscription' | 'payment' | 'done'>('pet');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const processPaymentMutation = useProcessPayment(subscriptionId ?? '');
+
+  const clearFieldError = (key: string) => {
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
+
+  const clearFieldErrorsForStep = () => setFieldErrors({});
 
   const handleCreatePet = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,10 +69,22 @@ export function ContratacionPage() {
       });
       setPetId(pet.id);
       setCreateNewPet(false);
+      clearFieldErrorsForStep();
       setStep('subscription');
       toast.success('Mascota registrada');
     } catch (err) {
-      toast.error(getErrorMessage(err));
+      const details = getValidationDetails(err);
+      if (details) {
+        const flat: Record<string, string> = {};
+        for (const [k, v] of Object.entries(details)) {
+          flat[k] = (v as string[])[0] ?? '';
+        }
+        setFieldErrors(flat);
+        toast.error('Revisa los campos marcados.');
+      } else {
+        setFieldErrors({});
+        toast.error(getErrorMessage(err));
+      }
     }
   };
 
@@ -86,10 +109,22 @@ export function ContratacionPage() {
       }
       const sub = await createSubMutation.mutateAsync(payload);
       setSubscriptionId(sub.id);
+      clearFieldErrorsForStep();
       setStep('payment');
       toast.success('Suscripción creada. Agrega método de pago o paga ahora.');
     } catch (err) {
-      toast.error(getErrorMessage(err));
+      const details = getValidationDetails(err);
+      if (details) {
+        const flat: Record<string, string> = {};
+        for (const [k, v] of Object.entries(details)) {
+          flat[k] = (v as string[])[0] ?? '';
+        }
+        setFieldErrors(flat);
+        toast.error('Revisa los campos marcados.');
+      } else {
+        setFieldErrors({});
+        toast.error(getErrorMessage(err));
+      }
     }
   };
 
@@ -105,10 +140,22 @@ export function ContratacionPage() {
         payment_method_id: primary.id,
         idempotency_key: `pay-${subscriptionId}-${Date.now()}`,
       });
+      clearFieldErrorsForStep();
       setStep('done');
       toast.success('Pago procesado correctamente');
     } catch (err) {
-      toast.error(getErrorMessage(err));
+      const details = getValidationDetails(err);
+      if (details) {
+        const flat: Record<string, string> = {};
+        for (const [k, v] of Object.entries(details)) {
+          flat[k] = (v as string[])[0] ?? '';
+        }
+        setFieldErrors(flat);
+        toast.error('Revisa los campos marcados.');
+      } else {
+        setFieldErrors({});
+        toast.error(getErrorMessage(err));
+      }
     }
   };
 
@@ -148,15 +195,15 @@ export function ContratacionPage() {
                     <div>
                       <Label>Mascota</Label>
                       <div className="flex gap-2 mt-2">
-                        <Button type="button" variant={!createNewPet ? 'default' : 'outline'} onClick={() => { setCreateNewPet(false); setPetId(pets[0]?.id ?? ''); }}>
+                        <Button type="button" variant={!createNewPet ? 'default' : 'outline'} onClick={() => { setCreateNewPet(false); setPetId(pets[0]?.id ?? ''); clearFieldErrorsForStep(); }}>
                           Usar existente
                         </Button>
-                        <Button type="button" variant={createNewPet ? 'default' : 'outline'} onClick={() => setCreateNewPet(true)}>
+                        <Button type="button" variant={createNewPet ? 'default' : 'outline'} onClick={() => { setCreateNewPet(true); clearFieldErrorsForStep(); }}>
                           Nueva mascota
                         </Button>
                       </div>
                       {!createNewPet && pets.length > 0 && (
-                        <Select value={petId || pets[0].id} onValueChange={setPetId}>
+                        <Select value={petId || pets[0].id} onValueChange={(v) => { setPetId(v); clearFieldError('name'); clearFieldError('species'); clearFieldError('birth_date'); }}>
                           <SelectTrigger className="mt-2">
                             <SelectValue placeholder="Selecciona mascota" />
                           </SelectTrigger>
@@ -171,21 +218,24 @@ export function ContratacionPage() {
                         <form onSubmit={handleCreatePet} className="mt-4 space-y-4">
                           <div>
                             <Label>Nombre mascota</Label>
-                            <Input value={petName} onChange={(e) => setPetName(e.target.value)} placeholder="Nombre" required />
+                            <Input value={petName} onChange={(e) => { setPetName(e.target.value); clearFieldError('name'); }} placeholder="Nombre" className={fieldErrors.name ? 'border-red-500' : ''} required />
+                            {fieldErrors.name && <p className="text-sm text-red-600 mt-1">{fieldErrors.name}</p>}
                           </div>
                           <div>
                             <Label>Especie</Label>
-                            <Select value={petSpecies} onValueChange={(v) => setPetSpecies(v as 'DOG' | 'CAT')}>
-                              <SelectTrigger><SelectValue /></SelectTrigger>
+                            <Select value={petSpecies} onValueChange={(v) => { setPetSpecies(v as 'DOG' | 'CAT'); clearFieldError('species'); }}>
+                              <SelectTrigger className={fieldErrors.species ? 'border-red-500' : ''}><SelectValue /></SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="DOG">Perro</SelectItem>
                                 <SelectItem value="CAT">Gato</SelectItem>
                               </SelectContent>
                             </Select>
+                            {fieldErrors.species && <p className="text-sm text-red-600 mt-1">{fieldErrors.species}</p>}
                           </div>
                           <div>
                             <Label>Fecha de nacimiento</Label>
-                            <Input type="date" value={petBirthDate} onChange={(e) => setPetBirthDate(e.target.value)} required />
+                            <Input type="date" value={petBirthDate} onChange={(e) => { setPetBirthDate(e.target.value); clearFieldError('birth_date'); }} className={fieldErrors.birth_date ? 'border-red-500' : ''} required />
+                            {fieldErrors.birth_date && <p className="text-sm text-red-600 mt-1">{fieldErrors.birth_date}</p>}
                           </div>
                           <Button type="submit" className="bg-[#FF6F61] text-white" disabled={createPetMutation.isPending}>
                             {createPetMutation.isPending ? 'Guardando...' : 'Registrar mascota'}
@@ -194,7 +244,7 @@ export function ContratacionPage() {
                       )}
                     </div>
                     {canGoSubscription && (
-                      <Button className="w-full bg-[#FF6F61] text-white" onClick={() => setStep('subscription')}>
+                      <Button className="w-full bg-[#FF6F61] text-white" onClick={() => { clearFieldErrorsForStep(); setStep('subscription'); }}>
                         Continuar a suscripción
                       </Button>
                     )}
@@ -204,9 +254,13 @@ export function ContratacionPage() {
                 {step === 'subscription' && (
                   <div className="space-y-6">
                     <p className="text-gray-600">Mascota y plan listos. Opcional: cupón de descuento.</p>
+                    {(fieldErrors.pet_id || fieldErrors.plan_id) && (
+                      <p className="text-sm text-red-600">{fieldErrors.pet_id ?? fieldErrors.plan_id}</p>
+                    )}
                     <div>
                       <Label>Cupón (opcional)</Label>
-                      <Input value={couponCode} onChange={(e) => setCouponCode(e.target.value)} placeholder="Código cupón" className="mt-1" />
+                      <Input value={couponCode} onChange={(e) => { setCouponCode(e.target.value); clearFieldError('coupon_code'); }} placeholder="Código cupón" className={`mt-1 ${fieldErrors.coupon_code ? 'border-red-500' : ''}`} />
+                      {fieldErrors.coupon_code && <p className="text-sm text-red-600 mt-1">{fieldErrors.coupon_code}</p>}
                     </div>
                     <Button className="w-full bg-[#FF6F61] text-white" onClick={handleCreateSubscription} disabled={createSubMutation.isPending}>
                       {createSubMutation.isPending ? 'Creando suscripción...' : 'Crear suscripción'}
@@ -217,6 +271,11 @@ export function ContratacionPage() {
                 {step === 'payment' && (
                   <div className="space-y-6">
                     <p className="text-gray-600">Suscripción creada. Puedes pagar ahora con tu método de pago principal o agregar uno en Mi cuenta.</p>
+                    {(fieldErrors.payment_method_id || fieldErrors.idempotency_key || fieldErrors.subscription_id) && (
+                      <p className="text-sm text-red-600">
+                        {fieldErrors.payment_method_id ?? fieldErrors.idempotency_key ?? fieldErrors.subscription_id}
+                      </p>
+                    )}
                     {paymentMethods.length === 0 ? (
                       <p className="text-sm text-amber-700">No tienes métodos de pago. Ve a Mi cuenta para agregar una tarjeta y luego vuelve a intentar el pago.</p>
                     ) : (

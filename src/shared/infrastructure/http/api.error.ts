@@ -1,4 +1,5 @@
 import type { AxiosError } from 'axios';
+import { translateValidationDetails } from '@shared/utils/validation-messages';
 
 /**
  * Custom API Error class for handling HTTP errors
@@ -121,11 +122,11 @@ export class ApiError extends Error {
       return 'El recurso solicitado no existe.';
     }
 
-    if (this.isValidationError()) {
-      // Si hay errores de validación específicos, mostrarlos
-      if (this.errorData?.errors) {
-        const errors = Object.values(this.errorData.errors).flat();
-        return errors.join(', ');
+    if (this.isBadRequest() || this.isValidationError()) {
+      const translated = this.getValidationErrors();
+      if (translated && Object.keys(translated).length > 0) {
+        const messages = Object.values(translated).flat();
+        return messages.join('. ');
       }
       return this.message;
     }
@@ -142,13 +143,16 @@ export class ApiError extends Error {
   }
 
   /**
-   * Get validation errors if available
-   * Returns a map of field names to error messages
+   * Get validation errors if available (field -> message or messages)
    */
   getValidationErrors(): Record<string, string[]> | null {
     const details = (this.errorData as any)?.error?.details ?? this.errorData?.errors;
-    if (this.isValidationError() && details) {
-      return details as Record<string, string[]>;
+    if ((this.isBadRequest() || this.isValidationError()) && details && typeof details === 'object') {
+      const out: Record<string, string[]> = {};
+      for (const [k, v] of Object.entries(details)) {
+        out[k] = Array.isArray(v) ? (v as string[]) : [String(v)];
+      }
+      return translateValidationDetails(out);
     }
     return null;
   }
@@ -198,4 +202,14 @@ export function getErrorMessage(error: unknown): string {
   }
 
   return 'Ocurrió un error inesperado';
+}
+
+/**
+ * Get validation details from error (for forms: field -> messages)
+ */
+export function getValidationDetails(error: unknown): Record<string, string[]> | null {
+  if (isApiError(error)) {
+    return error.getValidationErrors();
+  }
+  return null;
 }

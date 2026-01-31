@@ -8,7 +8,7 @@ import { useAuth } from '@modules/auth/presentation/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { getErrorMessage } from '@shared/infrastructure/http/api.error';
+import { getErrorMessage, getValidationDetails } from '@shared/infrastructure/http/api.error';
 import { toast } from 'sonner';
 
 export function LoginPage() {
@@ -17,6 +17,7 @@ export function LoginPage() {
   const { login, loginMutation } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const locationState = location.state as { from?: string; planId?: string } | null;
   const from = locationState?.from;
@@ -35,7 +36,16 @@ export function LoginPage() {
         navigate('/sucursal-virtual', { replace: true });
       }
     } catch (err) {
-      toast.error(getErrorMessage(err));
+      const details = getValidationDetails(err);
+      if (details) {
+        const flat: Record<string, string> = {};
+        for (const [k, v] of Object.entries(details)) flat[k] = v[0] ?? '';
+        setFieldErrors(flat);
+        toast.error('Revisa los campos marcados.');
+      } else {
+        setFieldErrors({});
+        toast.error(getErrorMessage(err));
+      }
     }
   };
 
@@ -56,11 +66,12 @@ export function LoginPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); setFieldErrors((prev) => ({ ...prev, email: '' })); }}
                 placeholder="tu@email.com"
-                className="mt-1"
+                className={`mt-1 ${fieldErrors.email ? 'border-red-500' : ''}`}
                 required
               />
+              {fieldErrors.email && <p className="text-sm text-red-600 mt-1">{fieldErrors.email}</p>}
             </div>
             <div>
               <Label htmlFor="password">Contraseña</Label>
@@ -68,11 +79,12 @@ export function LoginPage() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); setFieldErrors((prev) => ({ ...prev, password: '' })); }}
                 placeholder="••••••••"
-                className="mt-1"
+                className={`mt-1 ${fieldErrors.password ? 'border-red-500' : ''}`}
                 required
               />
+              {fieldErrors.password && <p className="text-sm text-red-600 mt-1">{fieldErrors.password}</p>}
             </div>
             <Button
               type="submit"

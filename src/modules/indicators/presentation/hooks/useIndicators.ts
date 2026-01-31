@@ -1,8 +1,8 @@
 /**
- * useIndicators - UF latest, list, by date
+ * useIndicators - UF latest, list, by date, create (admin)
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { indicatorsApi } from '../../infrastructure/repositories/http/IndicatorsHttpRepository';
 
 export const indicatorsKeys = {
@@ -30,5 +30,13 @@ export function useIndicatorByDate(date: string) {
     queryKey: indicatorsKeys.byDate(date),
     queryFn: () => indicatorsApi.getByDate(date),
     enabled: !!date,
+  });
+}
+
+export function useCreateIndicator() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: indicatorsApi.create.bind(indicatorsApi),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['indicators'] }),
   });
 }
