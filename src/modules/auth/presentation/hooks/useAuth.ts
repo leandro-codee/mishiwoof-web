@@ -30,8 +30,8 @@ export function useAuth() {
   });
 
   const resetPasswordMutation = useMutation({
-    mutationFn: (args: { token: string; new_password: string }) =>
-      authApi.resetPassword({ token: args.token, new_password: args.new_password }),
+    mutationFn: (args: { token: string; newPassword: string }) =>
+      authApi.resetPassword({ token: args.token, newPassword: args.newPassword }),
   });
 
   return {

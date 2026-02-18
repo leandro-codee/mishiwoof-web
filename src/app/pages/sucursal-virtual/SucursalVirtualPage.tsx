@@ -23,7 +23,7 @@ export function SucursalVirtualPage() {
   const { data: subscriptions = [], isLoading: loadingSubs } = useSubscriptions();
   const { data: unreadData } = useUnreadCount();
   const unreadCount = (unreadData as { count?: number } | undefined)?.count ?? 0;
-  const displayName = profile?.first_name ?? profile?.last_name ?? authUser?.email ?? 'Usuario';
+  const displayName = profile?.firstName ?? profile?.lastName ?? authUser?.email ?? 'Usuario';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -34,7 +34,7 @@ export function SucursalVirtualPage() {
             {/* Navbar inside white container */}
             <nav className="mb-8 md:mb-12">
               <div className="flex items-center justify-between">
-                <Link to="/home" className="flex items-center">
+                <Link to="/inicio" className="flex items-center">
                   <img 
                     src="/assets/logo woof.svg" 
                     alt="Mishiwoof Logo" 
@@ -43,7 +43,7 @@ export function SucursalVirtualPage() {
                 </Link>
                 <div className="flex items-center gap-4 md:gap-6">
                   <Link 
-                    to="/home" 
+                    to="/inicio" 
                     className={`text-sm md:text-base transition-all rounded-full px-4 md:px-6 py-2 border-2 ${
                       location.pathname === '/home'
                         ? 'text-[#FF6F61] font-semibold border-transparent'
@@ -112,8 +112,8 @@ export function SucursalVirtualPage() {
                   {pets.map((pet) => (
                     <div key={pet.id} className="flex flex-col md:flex-row items-center md:items-start gap-4 bg-white rounded-lg p-4">
                       <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
-                        {pet.photo_url ? (
-                          <img src={pet.photo_url} alt={pet.name} className="w-full h-full object-cover" />
+                        {pet.photoUrl ? (
+                          <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-2xl">🐾</div>
                         )}
@@ -121,7 +121,7 @@ export function SucursalVirtualPage() {
                       <div className="flex-1">
                         <p className="font-semibold text-black">{pet.name}</p>
                         <p className="text-sm text-gray-700">{pet.species} · {pet.age} años</p>
-                        {pet.weight_kg != null && <p className="text-sm text-gray-700">Peso: {pet.weight_kg} kg</p>}
+                        {pet.weightKg != null && <p className="text-sm text-gray-700">Peso: {pet.weightKg} kg</p>}
                       </div>
                     </div>
                   ))}
@@ -142,8 +142,8 @@ export function SucursalVirtualPage() {
                   <ul className="space-y-2">
                     {subscriptions.map((s) => (
                       <li key={s.id} className="flex justify-between items-center bg-white rounded-lg p-3">
-                        <span className="font-medium">{s.plan_name ?? s.plan_id}</span>
-                        <span className="text-sm text-gray-600">{s.status} · {s.final_price_uf} UF/mes</span>
+                        <span className="font-medium">{s.planName ?? s.planId}</span>
+                        <span className="text-sm text-gray-600">{s.status} · {s.finalPriceUf} UF/mes</span>
                       </li>
                     ))}
                   </ul>
@@ -243,7 +243,7 @@ export function SucursalVirtualPage() {
       {/* Footer */}
       <footer className="bg-[#E0E8FF] px-4 md:px-8 py-8 md:py-12">
         <div className="max-w-7xl mx-auto flex justify-center">
-          <Link to="/home" className="flex items-center">
+          <Link to="/inicio" className="flex items-center">
             <img 
               src="/assets/logo woof.svg" 
               alt="Mishiwoof Logo" 

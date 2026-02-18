@@ -26,7 +26,7 @@ export function ErrorBoundary() {
         <p className="text-gray-600 mb-6">{message}</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button asChild className="bg-[#FF6F61] hover:bg-[#FF6F61]/90 text-white">
-            <Link to="/home">Ir al inicio</Link>
+            <Link to="/inicio">Ir al inicio</Link>
           </Button>
           <Button variant="outline" onClick={() => window.location.reload()}>
             Recargar página

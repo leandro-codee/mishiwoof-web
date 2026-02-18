@@ -1,269 +1,180 @@
-/**
- * AdminPlansPage - CRUD planes, publicar/despublicar
- */
+// src/app/pages/admin/AdminPlansPage.tsx
 
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { usePlans, useDeletePlan } from '@modules/plans/presentation/hooks/usePlans';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Pencil, Trash2, Eye } from 'lucide-react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { usePlansList, useCreatePlan, useUpdatePlan, useDeletePlan, useTogglePublishPlan } from '@modules/plans/presentation/hooks/usePlans';
-import type { CreatePlanRequest, UpdatePlanRequest, PlanResponse } from '@modules/plans/application/dto/PlanDTO';
-import { getErrorMessage, getValidationDetails } from '@shared/infrastructure/http/api.error';
-import { toast } from 'sonner';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Checkbox } from '@/components/ui/checkbox';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
-function TogglePublishButton({ planId, isPublished }: { planId: string; isPublished: boolean }) {
-  const toggleMutation = useTogglePublishPlan(planId);
-  return (
-    <Button variant="outline" size="sm" onClick={() => toggleMutation.mutateAsync()} disabled={toggleMutation.isPending}>
-      {isPublished ? 'Ocultar' : 'Publicar'}
-    </Button>
-  );
-}
+export default function AdminPlansPage() {
+  const navigate = useNavigate();
+  const { data: plans, isLoading } = usePlans(false); // Include unpublished
+  const deletePlanMutation = useDeletePlan();
 
-export function AdminPlansPage() {
-  const { data: plans = [], isLoading } = usePlansList();
-  const createMutation = useCreatePlan();
-  const [openCreate, setOpenCreate] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [editingPlan, setEditingPlan] = useState<PlanResponse | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-
-  const [form, setForm] = useState<CreatePlanRequest>({
-    name: '',
-    description: '',
-    base_price_uf: 0,
-    has_dental: false,
-    has_preventive: false,
-    deductible_uf: 0,
-  });
-
-  const updateMutation = editingPlan ? useUpdatePlan(editingPlan.id) : null;
-  const deleteMutation = useDeletePlan();
-
-  const resetForm = () => {
-    setForm({
-      name: '',
-      description: '',
-      base_price_uf: 0,
-      has_dental: false,
-      has_preventive: false,
-      deductible_uf: 0,
-    });
-    setFieldErrors({});
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP',
+      maximumFractionDigits: 0,
+    }).format(value);
   };
 
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await createMutation.mutateAsync(form);
-      toast.success('Plan creado');
-      setOpenCreate(false);
-      resetForm();
-    } catch (err) {
-      const details = getValidationDetails(err);
-      if (details) {
-        const flat: Record<string, string> = {};
-        for (const [k, v] of Object.entries(details)) {
-          flat[k] = (v as string[])[0] ?? '';
-        }
-        setFieldErrors(flat);
-        toast.error('Revisa los campos.');
-      } else toast.error(getErrorMessage(err));
-    }
+  const handleDelete = async (planId: string) => {
+    await deletePlanMutation.mutateAsync(planId);
   };
 
-  const handleEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingPlan || !updateMutation) return;
-    const body: UpdatePlanRequest = {
-      name: form.name || undefined,
-      description: form.description || undefined,
-      base_price_uf: form.base_price_uf > 0 ? form.base_price_uf : undefined,
-      has_dental: form.has_dental,
-      has_preventive: form.has_preventive,
-      deductible_uf: form.deductible_uf,
-    };
-    try {
-      await updateMutation.mutateAsync(body);
-      toast.success('Plan actualizado');
-      setOpenEdit(false);
-      setEditingPlan(null);
-      resetForm();
-    } catch (err) {
-      const details = getValidationDetails(err);
-      if (details) {
-        const flat: Record<string, string> = {};
-        for (const [k, v] of Object.entries(details)) {
-          flat[k] = (v as string[])[0] ?? '';
-        }
-        setFieldErrors(flat);
-        toast.error('Revisa los campos.');
-      } else toast.error(getErrorMessage(err));
-    }
-  };
-
-  const handleDelete = async (plan: PlanResponse) => {
-    if (!confirm(`¿Eliminar plan "${plan.name}"?`)) return;
-    try {
-      await deleteMutation.mutateAsync(plan.id);
-      toast.success('Plan eliminado');
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    }
-  };
-
-  const openEditDialog = (plan: PlanResponse) => {
-    setEditingPlan(plan);
-    setForm({
-      name: plan.name,
-      description: plan.description ?? '',
-      base_price_uf: plan.base_price_uf,
-      has_dental: plan.has_dental,
-      has_preventive: plan.has_preventive,
-      deductible_uf: plan.deductible_uf,
-    });
-    setFieldErrors({});
-    setOpenEdit(true);
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">Cargando planes...</div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Planes</h1>
-        <Button className="bg-[#FF6F61] hover:bg-[#FF6F61]/90 text-white" onClick={() => { resetForm(); setOpenCreate(true); }}>
-          Nuevo plan
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Gestión de Planes</h1>
+          <p className="text-gray-600 mt-1">
+            Administra los planes de seguro para mascotas
+          </p>
+        </div>
+        <Button onClick={() => navigate('/admin/planes/crear')}>
+          <Plus className="h-4 w-4 mr-2" />
+          Crear Plan
         </Button>
       </div>
 
-      {isLoading ? (
-        <Skeleton className="h-64 w-full" />
-      ) : (
-        <div className="border rounded-lg overflow-hidden bg-white">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Precio UF</TableHead>
-                <TableHead>Publicado</TableHead>
-                <TableHead>Activo</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {plans.map((plan) => (
-                <TableRow key={plan.id}>
-                  <TableCell className="font-medium">{plan.name}</TableCell>
-                  <TableCell>{plan.base_price_uf} UF</TableCell>
-                  <TableCell>{plan.is_published ? 'Sí' : 'No'}</TableCell>
-                  <TableCell>{plan.is_active ? 'Sí' : 'No'}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => openEditDialog(plan)}>Editar</Button>
-                    <TogglePublishButton planId={plan.id} isPublished={plan.is_published} />
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(plan)}>Eliminar</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {plans?.map((plan) => (
+          <Card key={plan.id} className="hover:shadow-lg transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold">{plan.name}</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {plan.basePriceUf} UF / {formatCurrency(plan.basePriceCLP)}
+                  </p>
+                  {plan.description && (
+                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                      {plan.description}
+                    </p>
+                  )}
+                </div>
+                {plan.color && (
+                  <div
+                    className="w-10 h-10 rounded-full border-2 flex-shrink-0 ml-2"
+                    style={{ backgroundColor: plan.color }}
+                  />
+                )}
+              </div>
+
+              {/* Badges */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {plan.isPublished && (
+                  <Badge variant="default">Publicado</Badge>
+                )}
+                {plan.isActive && (
+                  <Badge className="bg-green-500">Activo</Badge>
+                )}
+                {!plan.isActive && (
+                  <Badge variant="secondary">Inactivo</Badge>
+                )}
+                {plan.stars && (
+                  <Badge variant="outline">
+                    {'⭐'.repeat(plan.stars)}
+                  </Badge>
+                )}
+                {plan.hasDental && (
+                  <Badge variant="outline">Dental</Badge>
+                )}
+                {plan.hasPreventive && (
+                  <Badge variant="outline">Preventivo</Badge>
+                )}
+              </div>
+
+              {/* Image */}
+              {plan.imageUrl && (
+                <div className="mb-4">
+                  <img
+                    src={plan.imageUrl}
+                    alt={plan.name}
+                    className="w-full h-32 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => navigate(`/admin/planes/${plan.id}/editar`)}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/planes/${plan.id}`)}
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Eliminar plan?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción no se puede deshacer. El plan "{plan.name}" será eliminado
+                        permanentemente.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handleDelete(plan.id)}
+                        className="bg-red-500 hover:bg-red-600"
+                      >
+                        Eliminar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {plans && plans.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg mb-4">No hay planes creados</p>
+          <Button onClick={() => navigate('/admin/planes/crear')}>
+            <Plus className="h-4 w-4 mr-2" />
+            Crear Primer Plan
+          </Button>
         </div>
       )}
-
-      <Dialog open={openCreate} onOpenChange={(o) => { setOpenCreate(o); if (!o) setFieldErrors({}); }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Nuevo plan</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleCreate} className="space-y-4">
-            <div>
-              <Label>Nombre</Label>
-              <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={fieldErrors.name ? 'border-red-500' : ''} required />
-              {fieldErrors.name && <p className="text-sm text-red-600 mt-1">{fieldErrors.name}</p>}
-            </div>
-            <div>
-              <Label>Descripción</Label>
-              <Input value={form.description ?? ''} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
-            </div>
-            <div>
-              <Label>Precio base (UF)</Label>
-              <Input type="number" step="0.01" min="0" value={form.base_price_uf || ''} onChange={(e) => setForm((f) => ({ ...f, base_price_uf: parseFloat(e.target.value) || 0 }))} className={fieldErrors.base_price_uf ? 'border-red-500' : ''} required />
-              {fieldErrors.base_price_uf && <p className="text-sm text-red-600 mt-1">{fieldErrors.base_price_uf}</p>}
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id="has_dental" checked={form.has_dental} onCheckedChange={(c) => setForm((f) => ({ ...f, has_dental: !!c }))} />
-              <Label htmlFor="has_dental">Incluye dental</Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id="has_preventive" checked={form.has_preventive} onCheckedChange={(c) => setForm((f) => ({ ...f, has_preventive: !!c }))} />
-              <Label htmlFor="has_preventive">Preventivo</Label>
-            </div>
-            <div>
-              <Label>Deducible (UF)</Label>
-              <Input type="number" step="0.01" min="0" value={form.deductible_uf ?? 0} onChange={(e) => setForm((f) => ({ ...f, deductible_uf: parseFloat(e.target.value) || 0 }))} />
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpenCreate(false)}>Cancelar</Button>
-              <Button type="submit" className="bg-[#FF6F61] text-white" disabled={createMutation.isPending}>Crear</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={openEdit} onOpenChange={(o) => { if (!o) { setEditingPlan(null); setFieldErrors({}); } setOpenEdit(o); }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Editar plan</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleEdit} className="space-y-4">
-            <div>
-              <Label>Nombre</Label>
-              <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={fieldErrors.name ? 'border-red-500' : ''} required />
-              {fieldErrors.name && <p className="text-sm text-red-600 mt-1">{fieldErrors.name}</p>}
-            </div>
-            <div>
-              <Label>Descripción</Label>
-              <Input value={form.description ?? ''} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
-            </div>
-            <div>
-              <Label>Precio base (UF)</Label>
-              <Input type="number" step="0.01" min="0" value={form.base_price_uf || ''} onChange={(e) => setForm((f) => ({ ...f, base_price_uf: parseFloat(e.target.value) || 0 }))} className={fieldErrors.base_price_uf ? 'border-red-500' : ''} required />
-              {fieldErrors.base_price_uf && <p className="text-sm text-red-600 mt-1">{fieldErrors.base_price_uf}</p>}
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id="edit_has_dental" checked={form.has_dental} onCheckedChange={(c) => setForm((f) => ({ ...f, has_dental: !!c }))} />
-              <Label htmlFor="edit_has_dental">Incluye dental</Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id="edit_has_preventive" checked={form.has_preventive} onCheckedChange={(c) => setForm((f) => ({ ...f, has_preventive: !!c }))} />
-              <Label htmlFor="edit_has_preventive">Preventivo</Label>
-            </div>
-            <div>
-              <Label>Deducible (UF)</Label>
-              <Input type="number" step="0.01" min="0" value={form.deductible_uf ?? 0} onChange={(e) => setForm((f) => ({ ...f, deductible_uf: parseFloat(e.target.value) || 0 }))} />
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpenEdit(false)}>Cancelar</Button>
-              <Button type="submit" className="bg-[#FF6F61] text-white" disabled={updateMutation?.isPending}>Guardar</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

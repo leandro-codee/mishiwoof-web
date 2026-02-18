@@ -14,7 +14,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const token = getInternalJwtToken();
 
   if (!token) {
-    return <Navigate to="/login" state={{ from: location.pathname, planId: (location.state as { planId?: string })?.planId }} replace />;
+    return <Navigate to="/iniciar-sesion" state={{ from: location.pathname, planId: (location.state as { planId?: string })?.planId }} replace />;
   }
 
   return <>{children}</>;

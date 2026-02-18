@@ -4,88 +4,88 @@
 
 export interface SubscriptionResponse {
   id: string;
-  pet_id: string;
-  plan_id: string;
-  plan_name?: string;
-  enterprise_membership_id?: string;
+  petId: string;
+  planId: string;
+  planName?: string;
+  enterpriseMembershipId?: string;
   status: string;
-  billing_period_start: string;
-  next_billing_date: string;
-  base_price_uf: number;
-  applied_multiplier: number;
-  final_price_uf: number;
-  applied_coupon_id?: string;
-  coupon_expires_at?: string;
-  enterprise_share_uf: number;
-  member_share_uf: number;
-  canceled_at?: string;
-  cancellation_reason?: string;
-  created_at: string;
-  updated_at: string;
+  billingPeriodStart: string;
+  nextBillingDate: string;
+  basePriceUf: number;
+  appliedMultiplier: number;
+  finalPriceUf: number;
+  appliedCouponId?: string;
+  couponExpiresAt?: string;
+  enterpriseShareUf: number;
+  memberShareUf: number;
+  canceledAt?: string;
+  cancellationReason?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateSubscriptionRequest {
-  pet_id: string;
-  plan_id: string;
-  coupon_code?: string;
+  petId: string;
+  planId: string;
+  couponCode?: string;
 }
 
 export interface PaymentMethodResponse {
   id: string;
-  user_id: string;
+  userId: string;
   provider: string;
-  card_brand?: string;
+  cardBrand?: string;
   last4?: string;
-  exp_month?: number;
-  exp_year?: number;
-  cardholder_name?: string;
-  is_primary: boolean;
-  is_backup: boolean;
+  expMonth?: number;
+  expYear?: number;
+  cardholderName?: string;
+  isPrimary: boolean;
+  isBackup: boolean;
   status: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TokenizePaymentMethodRequest {
-  card_number: string;
-  exp_month: number;
-  exp_year: number;
+  cardNumber: string;
+  expMonth: number;
+  expYear: number;
   cvv: string;
-  cardholder_name: string;
-  is_primary: boolean;
-  is_backup: boolean;
+  cardholderName: string;
+  isPrimary: boolean;
+  isBackup: boolean;
 }
 
 export interface PaymentAttemptResponse {
   id: string;
-  subscription_id: string;
-  payment_method_id?: string;
-  amount_uf: number;
-  amount_clp: number;
-  uf_value_used: number;
+  subscriptionId: string;
+  paymentMethodId?: string;
+  amountUf: number;
+  amountClp: number;
+  ufValueUsed: number;
   status: string;
   provider: string;
-  provider_transaction_id?: string;
-  error_code?: string;
-  error_message?: string;
-  retry_count: number;
-  is_retry: boolean;
-  attempted_at?: string;
-  succeeded_at?: string;
-  failed_at?: string;
-  created_at: string;
+  providerTransactionId?: string;
+  errorCode?: string;
+  errorMessage?: string;
+  retryCount: number;
+  isRetry: boolean;
+  attemptedAt?: string;
+  succeededAt?: string;
+  failedAt?: string;
+  createdAt: string;
 }
 
 export interface ProcessPaymentRequest {
-  subscription_id: string;
-  payment_method_id?: string;
-  idempotency_key: string;
+  subscriptionId: string;
+  paymentMethodId?: string;
+  idempotencyKey: string;
 }
 
 export interface RetryPaymentRequest {
-  payment_attempt_id: string;
-  payment_method_id?: string;
-  idempotency_key: string;
+  paymentAttemptId: string;
+  paymentMethodId?: string;
+  idempotencyKey: string;
 }
 
 export interface CancelSubscriptionRequest {

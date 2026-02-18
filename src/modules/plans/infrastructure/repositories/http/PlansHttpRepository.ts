@@ -1,34 +1,90 @@
-/**
- * Plans HTTP Repository - /api/v1/plans
- */
+// src/modules/plans/infrastructure/repositories/http/PlansHttpRepository.ts
 
 import { httpClient } from '@shared/infrastructure/http/base.client';
-import type { PlanResponse, CreatePlanRequest, UpdatePlanRequest } from '../../../application/dto/PlanDTO';
+import type {
+  Plan,
+  CoverageType,
+  Benefit,
+  CreatePlanRequest,
+  UpdatePlanRequest,
+  BulkUpdateCoveragesRequest,
+  CreateCoverageTypeRequest,
+  CreateBenefitRequest,
+} from '../../../application/dto/PlanDTO';
 
-const BASE = '/api/v1/plans';
+const BASE = '/api/v1';
 
 export const plansApi = {
-  list(): Promise<PlanResponse[]> {
-    return httpClient.get<PlanResponse[]>(BASE);
+  // ==================== PLANS ====================
+  
+  async getAllPlans(publishedOnly: boolean = true): Promise<Plan[]> {
+    return httpClient.get<Plan[]>(`${BASE}/plans`, {
+      params: { published: publishedOnly },
+    });
   },
-
-  get(id: string): Promise<PlanResponse> {
-    return httpClient.get<PlanResponse>(`${BASE}/${id}`);
+  
+  async getPlanById(planId: string, withCoverages: boolean = true): Promise<Plan> {
+    return httpClient.get<Plan>(`${BASE}/plans/${planId}`, {
+      params: { with_coverages: withCoverages },
+    });
   },
-
-  create(body: CreatePlanRequest): Promise<PlanResponse> {
-    return httpClient.post<PlanResponse>(BASE, body);
+  
+  async createPlan(data: CreatePlanRequest): Promise<Plan> {
+    return httpClient.post<Plan>(`${BASE}/plans`, data);
   },
-
-  update(id: string, body: UpdatePlanRequest): Promise<PlanResponse> {
-    return httpClient.put<PlanResponse>(`${BASE}/${id}`, body);
+  
+  async updatePlan(planId: string, data: UpdatePlanRequest): Promise<Plan> {
+    return httpClient.put<Plan>(`${BASE}/plans/${planId}`, data);
   },
-
-  delete(id: string): Promise<void> {
-    return httpClient.delete(`${BASE}/${id}`);
+  
+  async deletePlan(planId: string): Promise<void> {
+    return httpClient.delete(`${BASE}/plans/${planId}`);
   },
-
-  togglePublish(id: string): Promise<PlanResponse> {
-    return httpClient.patch<PlanResponse>(`${BASE}/${id}/publish`);
+  
+  // ⭐ Bulk update coverages
+  async bulkUpdateCoverages(planId: string, data: BulkUpdateCoveragesRequest): Promise<Plan> {
+    return httpClient.put<Plan>(`${BASE}/plans/${planId}/coverages`, data);
+  },
+  
+  async uploadPlanImage(planId: string, file: File): Promise<{ imageUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const axios = httpClient.getAxiosInstance();
+    const response = await axios.post(`${BASE}/plans/${planId}/image`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data.data;
+  },
+  
+  async uploadPlanTermsPDF(planId: string, file: File): Promise<{ pdfUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const axios = httpClient.getAxiosInstance();
+    const response = await axios.post(`${BASE}/plans/${planId}/terms-pdf`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data.data;
+  },
+  
+  // ==================== COVERAGE TYPES ====================
+  
+  async getAllCoverageTypes(): Promise<CoverageType[]> {
+    return httpClient.get<CoverageType[]>(`${BASE}/coverage-types`);
+  },
+  
+  async createCoverageType(data: CreateCoverageTypeRequest): Promise<CoverageType> {
+    return httpClient.post<CoverageType>(`${BASE}/coverage-types`, data);
+  },
+  
+  // ==================== BENEFITS ====================
+  
+  async getAllBenefits(): Promise<Benefit[]> {
+    return httpClient.get<Benefit[]>(`${BASE}/benefits`);
+  },
+  
+  async createBenefit(data: CreateBenefitRequest): Promise<Benefit> {
+    return httpClient.post<Benefit>(`${BASE}/benefits`, data);
   },
 };

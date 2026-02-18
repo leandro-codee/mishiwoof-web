@@ -47,28 +47,28 @@ export function AdminCouponsPage() {
 
   const [createForm, setCreateForm] = useState<CreateCouponRequest>({
     code: '',
-    discount_type: 'PERCENTAGE',
-    discount_value: 0,
-    valid_from: '',
-    valid_to: '',
+    discountType: 'PERCENTAGE',
+    discountValue: 0,
+    validFrom: '',
+    validTo: '',
   });
 
   const [editForm, setEditForm] = useState<UpdateCouponRequest>({});
-  const updateMutation = editingCoupon ? useUpdateCoupon(editingCoupon.id) : null;
+  const updateMutation = useUpdateCoupon(editingCoupon?.id ?? '');
   const deleteMutation = useDeleteCoupon();
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     const payload = {
       ...createForm,
-      valid_from: createForm.valid_from.includes('T') ? createForm.valid_from : `${createForm.valid_from}T00:00:00.000Z`,
-      valid_to: createForm.valid_to.includes('T') ? createForm.valid_to : `${createForm.valid_to}T00:00:00.000Z`,
+      validFrom: createForm.validFrom.includes('T') ? createForm.validFrom : `${createForm.validFrom}T00:00:00.000Z`,
+      validTo: createForm.validTo.includes('T') ? createForm.validTo : `${createForm.validTo}T00:00:00.000Z`,
     };
     try {
       await createMutation.mutateAsync(payload);
       toast.success('Cupón creado');
       setOpenCreate(false);
-      setCreateForm({ code: '', discount_type: 'PERCENTAGE', discount_value: 0, valid_from: '', valid_to: '' });
+      setCreateForm({ code: '', discountType: 'PERCENTAGE', discountValue: 0, validFrom: '', validTo: '' });
       setFieldErrors({});
     } catch (err) {
       const details = getValidationDetails(err);
@@ -85,7 +85,7 @@ export function AdminCouponsPage() {
 
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingCoupon || !updateMutation) return;
+    if (!editingCoupon) return;
     try {
       await updateMutation.mutateAsync(editForm);
       toast.success('Cupón actualizado');
@@ -119,10 +119,10 @@ export function AdminCouponsPage() {
     setEditingCoupon(coupon);
     setEditForm({
       description: coupon.description,
-      valid_from: coupon.valid_from?.slice(0, 10),
-      valid_to: coupon.valid_to?.slice(0, 10),
-      max_uses: coupon.max_uses,
-      is_active: coupon.is_active,
+      validFrom: coupon.validFrom?.slice(0, 10),
+      validTo: coupon.validTo?.slice(0, 10),
+      maxUses: coupon.maxUses,
+      isActive: coupon.isActive,
     });
     setFieldErrors({});
     setOpenEdit(true);
@@ -156,10 +156,10 @@ export function AdminCouponsPage() {
               {coupons.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.code}</TableCell>
-                  <TableCell>{c.discount_type} / {c.discount_value}</TableCell>
-                  <TableCell>{c.valid_from?.slice(0, 10)} — {c.valid_to?.slice(0, 10)}</TableCell>
-                  <TableCell>{c.current_uses} / {c.max_uses ?? '∞'}</TableCell>
-                  <TableCell>{c.is_active ? 'Sí' : 'No'}</TableCell>
+                  <TableCell>{c.discountType} / {c.discountValue}</TableCell>
+                  <TableCell>{c.validFrom?.slice(0, 10)} — {c.validTo?.slice(0, 10)}</TableCell>
+                  <TableCell>{c.currentUses} / {c.maxUses ?? '∞'}</TableCell>
+                  <TableCell>{c.isActive ? 'Sí' : 'No'}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button variant="outline" size="sm" onClick={() => openEditDialog(c)}>Editar</Button>
                     <Button variant="destructive" size="sm" onClick={() => handleDelete(c)}>Eliminar</Button>
@@ -189,7 +189,7 @@ export function AdminCouponsPage() {
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label>Tipo descuento</Label>
-                <Select value={createForm.discount_type} onValueChange={(v) => setCreateForm((f) => ({ ...f, discount_type: v as CreateCouponRequest['discount_type'] }))}>
+                <Select value={createForm.discountType} onValueChange={(v) => setCreateForm((f) => ({ ...f, discountType: v as CreateCouponRequest['discountType'] }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {DISCOUNT_TYPES.map((t) => (
@@ -200,25 +200,25 @@ export function AdminCouponsPage() {
               </div>
               <div>
                 <Label>Valor</Label>
-                <Input type="number" step="0.01" value={createForm.discount_value || ''} onChange={(e) => setCreateForm((f) => ({ ...f, discount_value: parseFloat(e.target.value) || 0 }))} className={fieldErrors.discount_value ? 'border-red-500' : ''} required />
-                {fieldErrors.discount_value && <p className="text-sm text-red-600 mt-1">{fieldErrors.discount_value}</p>}
+                <Input type="number" step="0.01" value={createForm.discountValue || ''} onChange={(e) => setCreateForm((f) => ({ ...f, discountValue: parseFloat(e.target.value) || 0 }))} className={fieldErrors.discountValue ? 'border-red-500' : ''} required />
+                {fieldErrors.discountValue && <p className="text-sm text-red-600 mt-1">{fieldErrors.discountValue}</p>}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label>Válido desde</Label>
-                <Input type="date" value={createForm.valid_from} onChange={(e) => setCreateForm((f) => ({ ...f, valid_from: e.target.value }))} className={fieldErrors.valid_from ? 'border-red-500' : ''} required />
-                {fieldErrors.valid_from && <p className="text-sm text-red-600 mt-1">{fieldErrors.valid_from}</p>}
+                <Input type="date" value={createForm.validFrom} onChange={(e) => setCreateForm((f) => ({ ...f, validFrom: e.target.value }))} className={fieldErrors.validFrom ? 'border-red-500' : ''} required />
+                {fieldErrors.validFrom && <p className="text-sm text-red-600 mt-1">{fieldErrors.validFrom}</p>}
               </div>
               <div>
                 <Label>Válido hasta</Label>
-                <Input type="date" value={createForm.valid_to} onChange={(e) => setCreateForm((f) => ({ ...f, valid_to: e.target.value }))} className={fieldErrors.valid_to ? 'border-red-500' : ''} required />
-                {fieldErrors.valid_to && <p className="text-sm text-red-600 mt-1">{fieldErrors.valid_to}</p>}
+                <Input type="date" value={createForm.validTo} onChange={(e) => setCreateForm((f) => ({ ...f, validTo: e.target.value }))} className={fieldErrors.validTo ? 'border-red-500' : ''} required />
+                {fieldErrors.validTo && <p className="text-sm text-red-600 mt-1">{fieldErrors.validTo}</p>}
               </div>
             </div>
             <div>
               <Label>Máx. usos (opcional)</Label>
-              <Input type="number" min="0" value={createForm.max_uses ?? ''} onChange={(e) => setCreateForm((f) => ({ ...f, max_uses: e.target.value ? parseInt(e.target.value, 10) : undefined }))} />
+              <Input type="number" min="0" value={createForm.maxUses ?? ''} onChange={(e) => setCreateForm((f) => ({ ...f, maxUses: e.target.value ? parseInt(e.target.value, 10) : undefined }))} />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpenCreate(false)}>Cancelar</Button>
@@ -241,24 +241,24 @@ export function AdminCouponsPage() {
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label>Válido desde</Label>
-                <Input type="date" value={editForm.valid_from ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, valid_from: e.target.value }))} />
+                <Input type="date" value={editForm.validFrom ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, validFrom: e.target.value }))} />
               </div>
               <div>
                 <Label>Válido hasta</Label>
-                <Input type="date" value={editForm.valid_to ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, valid_to: e.target.value }))} />
+                <Input type="date" value={editForm.validTo ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, validTo: e.target.value }))} />
               </div>
             </div>
             <div>
               <Label>Máx. usos</Label>
-              <Input type="number" min="0" value={editForm.max_uses ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, max_uses: e.target.value ? parseInt(e.target.value, 10) : undefined }))} />
+              <Input type="number" min="0" value={editForm.maxUses ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, maxUses: e.target.value ? parseInt(e.target.value, 10) : undefined }))} />
             </div>
             <div className="flex items-center gap-2">
-              <Checkbox id="edit_is_active" checked={editForm.is_active ?? true} onCheckedChange={(c) => setEditForm((f) => ({ ...f, is_active: !!c }))} />
+              <Checkbox id="edit_is_active" checked={editForm.isActive ?? true} onCheckedChange={(c) => setEditForm((f) => ({ ...f, isActive: !!c }))} />
               <Label htmlFor="edit_is_active">Activo</Label>
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpenEdit(false)}>Cancelar</Button>
-              <Button type="submit" className="bg-[#FF6F61] text-white" disabled={updateMutation?.isPending}>Guardar</Button>
+              <Button type="submit" className="bg-[#FF6F61] text-white" disabled={updateMutation.isPending || !editingCoupon}>Guardar</Button>
             </DialogFooter>
           </form>
         </DialogContent>

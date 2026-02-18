@@ -6,52 +6,52 @@ export interface CouponResponse {
   id: string;
   code: string;
   description?: string;
-  discount_type: string;
-  discount_value: number;
-  valid_from: string;
-  valid_to: string;
-  valid_months?: number;
-  max_uses?: number;
-  current_uses: number;
-  max_uses_per_user?: number;
-  applicable_plan_ids?: string[];
-  minimum_price_uf?: number;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  discountType: string;
+  discountValue: number;
+  validFrom: string;
+  validTo: string;
+  validMonths?: number;
+  maxUses?: number;
+  currentUses: number;
+  maxUsesPerUser?: number;
+  applicablePlanIds?: string[];
+  minimumPriceUf?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ValidateCouponRequest {
   code: string;
-  plan_id?: string;
-  price_uf: number;
+  planId?: string;
+  priceUf: number;
 }
 
 export interface ValidateCouponResponse {
   valid: boolean;
   coupon?: CouponResponse;
-  discount_uf?: number;
+  discountUf?: number;
   message?: string;
 }
 
 export interface CreateCouponRequest {
   code: string;
   description?: string;
-  discount_type: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FIXED_UF';
-  discount_value: number;
-  valid_from: string;
-  valid_to: string;
-  valid_months?: number;
-  max_uses?: number;
-  max_uses_per_user?: number;
-  applicable_plan_ids?: string[];
-  minimum_price_uf?: number;
+  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FIXED_UF';
+  discountValue: number;
+  validFrom: string;
+  validTo: string;
+  validMonths?: number;
+  maxUses?: number;
+  maxUsesPerUser?: number;
+  applicablePlanIds?: string[];
+  minimumPriceUf?: number;
 }
 
 export interface UpdateCouponRequest {
   description?: string;
-  valid_from?: string;
-  valid_to?: string;
-  max_uses?: number;
-  is_active?: boolean;
+  validFrom?: string;
+  validTo?: string;
+  maxUses?: number;
+  isActive?: boolean;
 }

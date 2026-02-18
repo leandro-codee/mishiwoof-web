@@ -4,63 +4,63 @@
 
 export interface PetResponse {
   id: string;
-  owner_id: string;
+  ownerId: string;
   name: string;
   species: string;
   breed?: string;
-  birth_date: string;
+  birthDate: string;
   age: number;
   gender?: string;
   color?: string;
-  weight_kg?: number;
-  is_sterilized: boolean;
-  is_senior: boolean;
-  pre_existing_conditions: string[];
+  weightKg?: number;
+  isSterilized: boolean;
+  isSenior: boolean;
+  preExistingConditions: string[];
   disease: boolean;
   restricted: boolean;
-  minor_disease: boolean;
+  minorDisease: boolean;
   tos: boolean;
-  photo_url?: string;
-  microchip_number?: string;
+  photoUrl?: string;
+  microchipNumber?: string;
   serial?: string;
-  coupon_id?: string;
-  created_at: string;
-  updated_at: string;
+  couponId?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreatePetRequest {
   name: string;
   species: 'DOG' | 'CAT';
   breed?: string;
-  birth_date: string;
+  birthDate: string;
   gender?: string;
   color?: string;
-  weight_kg?: number;
-  is_sterilized: boolean;
-  pre_existing_conditions?: string[];
+  weightKg?: number;
+  isSterilized: boolean;
+  preExistingConditions?: string[];
   disease: boolean;
   restricted: boolean;
-  minor_disease: boolean;
+  minorDisease: boolean;
   tos: boolean;
-  microchip_number?: string;
+  microchipNumber?: string;
   serial?: string;
-  coupon_id?: string;
+  couponId?: string;
 }
 
 export interface UpdatePetRequest {
   name?: string;
   breed?: string;
-  birth_date?: string;
+  birthDate?: string;
   gender?: string;
   color?: string;
-  weight_kg?: number;
-  is_sterilized?: boolean;
-  pre_existing_conditions?: string[];
+  weightKg?: number;
+  isSterilized?: boolean;
+  preExistingConditions?: string[];
   disease?: boolean;
   restricted?: boolean;
-  minor_disease?: boolean;
+  minorDisease?: boolean;
   tos?: boolean;
-  microchip_number?: string;
+  microchipNumber?: string;
   serial?: string;
-  coupon_id?: string;
+  couponId?: string;
 }

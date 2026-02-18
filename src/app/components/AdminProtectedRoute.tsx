@@ -15,12 +15,17 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
   const token = getInternalJwtToken();
   const user = authStore.user;
 
+  console.log('user', user);
+  console.log('token', token);
+  console.log('location', location);
+  console.log('children', children);
+
   if (!token) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    return <Navigate to="/iniciar-sesion" state={{ from: location.pathname }} replace />;
   }
 
   if (user?.role !== 'ADMIN') {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/inicio" replace />;
   }
 
   return <>{children}</>;

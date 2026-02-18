@@ -10,7 +10,7 @@ import { useAuth } from '@modules/auth/presentation/hooks/useAuth';
 
 export function HomePage() {
   const location = useLocation();
-  const isHome = location.pathname === '/home';
+  const isHome = location.pathname === '/inicio' || location.pathname === '/home';
   const { isAuthenticated, user } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
 
@@ -37,7 +37,7 @@ export function HomePage() {
             {/* Navbar inside white container */}
             <nav className="mb-8 md:mb-12">
               <div className="flex items-center justify-between">
-                <Link to="/home" className="flex items-center">
+                <Link to="/inicio" className="flex items-center">
                   <img 
                     src="/assets/logo woof.svg" 
                     alt="Mishiwoof Logo" 
@@ -53,7 +53,7 @@ export function HomePage() {
                         : 'bg-transparent text-black border-transparent hover:border-2 hover:border-violet-500'
                     } rounded-full px-4 md:px-6 border-2 transition-all`}
                   >
-                    <Link to="/home">Home</Link>
+                    <Link to="/inicio">Home</Link>
                   </Button>
                   {isAuthenticated ? (
                     <>
@@ -78,11 +78,11 @@ export function HomePage() {
                     </>
                   ) : (
                     <>
-                      <Link to="/login" className="text-sm md:text-base rounded-full px-4 md:px-6 py-2 border-2 border-transparent hover:border-violet-500">
+                      <Link to="/iniciar-sesion" className="text-sm md:text-base rounded-full px-4 md:px-6 py-2 border-2 border-transparent hover:border-violet-500">
                         Iniciar sesión
                       </Link>
                       <Button asChild className="bg-[#FF6F61] text-white rounded-full px-4 md:px-6">
-                        <Link to="/register">Registrarse</Link>
+                        <Link to="/registro">Registrarse</Link>
                       </Button>
                     </>
                   )}
@@ -232,7 +232,7 @@ export function HomePage() {
       {/* Footer */}
       <footer className="bg-[#E0E8FF] px-4 md:px-8 py-8 md:py-12">
         <div className="max-w-7xl mx-auto flex justify-center">
-          <Link to="/home" className="flex items-center">
+          <Link to="/inicio" className="flex items-center">
             <img 
               src="/assets/logo woof.svg" 
               alt="Mishiwoof Logo" 

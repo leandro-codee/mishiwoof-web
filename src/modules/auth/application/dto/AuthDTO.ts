@@ -6,17 +6,30 @@ export interface RegisterRequest {
   email: string;
   password: string;
   dni?: string;
-  first_name?: string;
-  last_name?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
+  birthDate?: string;
+  gender?: string;
+  stateId?: string;
+}
+
+export interface UserResponse {
+  id: string;
+  email: string;
+  dni: string;
+  role: string;
+  firstName?: string;
+  lastName?: string;
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface RegisterResponse {
-  user_id: string;
-  email: string;
-  access_token: string;
-  refresh_token: string;
-  email_verified: boolean;
+  user: UserResponse;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface LoginRequest {
@@ -25,19 +38,17 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  user_id: string;
-  email: string;
-  role: string;
-  access_token: string;
-  refresh_token: string;
+  user: UserResponse;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface RefreshRequest {
-  refresh_token: string;
+  refreshToken: string;
 }
 
 export interface RefreshResponse {
-  access_token: string;
+  accessToken: string;
 }
 
 export interface RequestPasswordResetRequest {
@@ -46,7 +57,7 @@ export interface RequestPasswordResetRequest {
 
 export interface ResetPasswordRequest {
   token: string;
-  new_password: string;
+  newPassword: string;
 }
 
 export interface ConfirmEmailRequest {

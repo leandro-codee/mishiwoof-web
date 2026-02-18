@@ -26,12 +26,12 @@ export function LayoutSucursal({ title, subtitle, children }: LayoutSucursalProp
           <div className="bg-white rounded-2xl p-6 md:p-12 shadow-lg">
             <nav className="mb-8 md:mb-12">
               <div className="flex items-center justify-between">
-                <Link to="/home" className="flex items-center">
+                <Link to="/inicio" className="flex items-center">
                   <img src="/assets/logo woof.svg" alt="Mishiwoof Logo" className="h-12 md:h-14" />
                 </Link>
                 <div className="flex items-center gap-4 md:gap-6">
                   <Link
-                    to="/home"
+                    to="/inicio"
                     className={`text-sm md:text-base transition-all rounded-full px-4 md:px-6 py-2 border-2 ${
                       location.pathname === '/home' ? 'text-[#FF6F61] font-semibold border-transparent' : 'text-black border-transparent hover:border-violet-500'
                     }`}
@@ -84,7 +84,7 @@ export function LayoutSucursal({ title, subtitle, children }: LayoutSucursalProp
 
       <footer className="bg-[#E0E8FF] px-4 md:px-8 py-6 mt-auto">
         <div className="max-w-7xl mx-auto flex justify-center">
-          <Link to="/home" className="flex items-center">
+          <Link to="/inicio" className="flex items-center">
             <img src="/assets/logo woof.svg" alt="Mishiwoof" className="h-8 opacity-70" style={{ filter: 'grayscale(100%)' }} />
           </Link>
         </div>

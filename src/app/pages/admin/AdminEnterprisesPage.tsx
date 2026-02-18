@@ -38,22 +38,21 @@ export function AdminEnterprisesPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const [createForm, setCreateForm] = useState<CreateEnterpriseRequest>({
-    user_id: '',
     name: '',
-    tax_id: '',
-    billing_email: '',
+    taxId: '',
+    billingEmail: '',
   });
   const [contractForm, setContractForm] = useState<CreateContractRequest>({
-    enterprise_id: '',
+    enterpriseId: '',
     name: '',
-    enterprise_share_percent: 0,
-    member_share_percent: 0,
-    billing_day: 1,
-    effective_from: '',
+    enterpriseSharePercent: 0,
+    memberSharePercent: 0,
+    billingDay: 1,
+    effectiveFrom: '',
   });
   const [membershipForm, setMembershipForm] = useState<AddMembershipRequest>({
-    user_id: '',
-    contract_id: '',
+    userId: '',
+    contractId: '',
   });
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -62,7 +61,7 @@ export function AdminEnterprisesPage() {
       await createMutation.mutateAsync(createForm);
       toast.success('Empresa creada');
       setOpenCreate(false);
-      setCreateForm({ user_id: '', name: '', tax_id: '', billing_email: '' });
+      setCreateForm({ name: '', taxId: '', billingEmail: '' });
       setFieldErrors({});
     } catch (err) {
       const details = getValidationDetails(err);
@@ -130,24 +129,19 @@ export function AdminEnterprisesPage() {
           </DialogHeader>
           <form onSubmit={handleCreate} className="space-y-4">
             <div>
-              <Label>ID usuario (propietario)</Label>
-              <Input value={createForm.user_id} onChange={(e) => setCreateForm((f) => ({ ...f, user_id: e.target.value }))} className={fieldErrors.user_id ? 'border-red-500' : ''} required />
-              {fieldErrors.user_id && <p className="text-sm text-red-600 mt-1">{fieldErrors.user_id}</p>}
-            </div>
-            <div>
               <Label>Nombre</Label>
               <Input value={createForm.name} onChange={(e) => setCreateForm((f) => ({ ...f, name: e.target.value }))} className={fieldErrors.name ? 'border-red-500' : ''} required />
               {fieldErrors.name && <p className="text-sm text-red-600 mt-1">{fieldErrors.name}</p>}
             </div>
             <div>
               <Label>RUT</Label>
-              <Input value={createForm.tax_id} onChange={(e) => setCreateForm((f) => ({ ...f, tax_id: e.target.value }))} className={fieldErrors.tax_id ? 'border-red-500' : ''} required />
-              {fieldErrors.tax_id && <p className="text-sm text-red-600 mt-1">{fieldErrors.tax_id}</p>}
+              <Input value={createForm.taxId} onChange={(e) => setCreateForm((f) => ({ ...f, taxId: e.target.value }))} className={fieldErrors.taxId ? 'border-red-500' : ''} required />
+              {fieldErrors.taxId && <p className="text-sm text-red-600 mt-1">{fieldErrors.taxId}</p>}
             </div>
             <div>
               <Label>Email facturación</Label>
-              <Input type="email" value={createForm.billing_email} onChange={(e) => setCreateForm((f) => ({ ...f, billing_email: e.target.value }))} className={fieldErrors.billing_email ? 'border-red-500' : ''} required />
-              {fieldErrors.billing_email && <p className="text-sm text-red-600 mt-1">{fieldErrors.billing_email}</p>}
+              <Input type="email" value={createForm.billingEmail} onChange={(e) => setCreateForm((f) => ({ ...f, billingEmail: e.target.value }))} className={fieldErrors.billingEmail ? 'border-red-500' : ''} required />
+              {fieldErrors.billingEmail && <p className="text-sm text-red-600 mt-1">{fieldErrors.billingEmail}</p>}
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpenCreate(false)}>Cancelar</Button>
@@ -175,7 +169,7 @@ function EnterpriseRow({
   fieldErrors,
   setFieldErrors,
 }: {
-  enterprise: { id: string; name: string; tax_id: string; billing_email: string };
+  enterprise: { id: string; name: string; taxId: string; billingEmail: string };
   expandedId: string | null;
   setExpandedId: (id: string | null) => void;
   openContract: string | null;
@@ -197,12 +191,12 @@ function EnterpriseRow({
 
   const handleCreateContract = async (e: React.FormEvent) => {
     e.preventDefault();
-    const body = { ...contractForm, enterprise_id: enterprise.id };
+    const body = { ...contractForm, enterpriseId: enterprise.id };
     try {
       await createContractMutation.mutateAsync(body);
       toast.success('Contrato creado');
       setOpenContract(null);
-      setContractForm({ enterprise_id: '', name: '', enterprise_share_percent: 0, member_share_percent: 0, billing_day: 1, effective_from: '' });
+      setContractForm({ enterpriseId: '', name: '', enterpriseSharePercent: 0, memberSharePercent: 0, billingDay: 1, effectiveFrom: '' });
       setFieldErrors({});
     } catch (err) {
       const details = getValidationDetails(err);
@@ -223,7 +217,7 @@ function EnterpriseRow({
       await addMembershipMutation.mutateAsync(membershipForm);
       toast.success('Miembro agregado');
       setOpenMembership(null);
-      setMembershipForm({ user_id: '', contract_id: '' });
+      setMembershipForm({ userId: '', contractId: '' });
       setFieldErrors({});
     } catch (err) {
       const details = getValidationDetails(err);
@@ -257,18 +251,18 @@ function EnterpriseRow({
           </Button>
         </TableCell>
         <TableCell className="font-medium">{enterprise.name}</TableCell>
-        <TableCell>{enterprise.tax_id}</TableCell>
-        <TableCell>{enterprise.billing_email}</TableCell>
+        <TableCell>{enterprise.taxId}</TableCell>
+        <TableCell>{enterprise.billingEmail}</TableCell>
       </TableRow>
       {isExpanded && (
         <TableRow>
           <TableCell colSpan={4} className="bg-gray-50 p-4">
             <div className="space-y-4">
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => { setContractForm((f) => ({ ...f, enterprise_id: enterprise.id, effective_from: new Date().toISOString().slice(0, 10) })); setOpenContract(enterprise.id); setFieldErrors({}); }}>
+                <Button variant="outline" size="sm" onClick={() => { setContractForm((f) => ({ ...f, enterpriseId: enterprise.id, effectiveFrom: new Date().toISOString().slice(0, 10) })); setOpenContract(enterprise.id); setFieldErrors({}); }}>
                   Nuevo contrato
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => { setMembershipForm({ user_id: '', contract_id: '' }); setOpenMembership(enterprise.id); setFieldErrors({}); }}>
+                <Button variant="outline" size="sm" onClick={() => { setMembershipForm({ userId: '', contractId: '' }); setOpenMembership(enterprise.id); setFieldErrors({}); }}>
                   Agregar miembro
                 </Button>
               </div>
@@ -280,7 +274,7 @@ function EnterpriseRow({
                   <ul className="text-sm space-y-1">
                     {memberships.map((m) => (
                       <li key={m.id} className="flex justify-between items-center">
-                        <span>User: {m.user_id} · Contrato: {m.contract_id}</span>
+                        <span>User: {m.userId} · Contrato: {m.contractId}</span>
                         <Button variant="ghost" size="sm" className="text-red-600" onClick={() => handleRemoveMembership(m.id)}>Quitar</Button>
                       </li>
                     ))}
@@ -306,21 +300,21 @@ function EnterpriseRow({
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label>% Empresa</Label>
-                <Input type="number" min="0" max="100" value={contractForm.enterprise_share_percent ?? ''} onChange={(e) => setContractForm((f) => ({ ...f, enterprise_share_percent: parseFloat(e.target.value) || 0 }))} />
+                <Input type="number" min="0" max="100" value={contractForm.enterpriseSharePercent ?? ''} onChange={(e) => setContractForm((f) => ({ ...f, enterpriseSharePercent: parseFloat(e.target.value) || 0 }))} />
               </div>
               <div>
                 <Label>% Miembro</Label>
-                <Input type="number" min="0" max="100" value={contractForm.member_share_percent ?? ''} onChange={(e) => setContractForm((f) => ({ ...f, member_share_percent: parseFloat(e.target.value) || 0 }))} />
+                <Input type="number" min="0" max="100" value={contractForm.memberSharePercent ?? ''} onChange={(e) => setContractForm((f) => ({ ...f, memberSharePercent: parseFloat(e.target.value) || 0 }))} />
               </div>
             </div>
             <div>
               <Label>Día facturación</Label>
-              <Input type="number" min="1" max="28" value={contractForm.billing_day ?? 1} onChange={(e) => setContractForm((f) => ({ ...f, billing_day: parseInt(e.target.value, 10) || 1 }))} />
+              <Input type="number" min="1" max="28" value={contractForm.billingDay ?? 1} onChange={(e) => setContractForm((f) => ({ ...f, billingDay: parseInt(e.target.value, 10) || 1 }))} />
             </div>
             <div>
               <Label>Vigente desde</Label>
-              <Input type="date" value={contractForm.effective_from} onChange={(e) => setContractForm((f) => ({ ...f, effective_from: e.target.value }))} className={fieldErrors.effective_from ? 'border-red-500' : ''} required />
-              {fieldErrors.effective_from && <p className="text-sm text-red-600 mt-1">{fieldErrors.effective_from}</p>}
+              <Input type="date" value={contractForm.effectiveFrom} onChange={(e) => setContractForm((f) => ({ ...f, effectiveFrom: e.target.value }))} className={fieldErrors.effectiveFrom ? 'border-red-500' : ''} required />
+              {fieldErrors.effectiveFrom && <p className="text-sm text-red-600 mt-1">{fieldErrors.effectiveFrom}</p>}
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpenContract(null)}>Cancelar</Button>
@@ -338,13 +332,13 @@ function EnterpriseRow({
           <form onSubmit={handleAddMembership} className="space-y-4">
             <div>
               <Label>ID usuario</Label>
-              <Input value={membershipForm.user_id} onChange={(e) => setMembershipForm((f) => ({ ...f, user_id: e.target.value }))} className={fieldErrors.user_id ? 'border-red-500' : ''} required />
-              {fieldErrors.user_id && <p className="text-sm text-red-600 mt-1">{fieldErrors.user_id}</p>}
+              <Input value={membershipForm.userId} onChange={(e) => setMembershipForm((f) => ({ ...f, userId: e.target.value }))} className={fieldErrors.userId ? 'border-red-500' : ''} required />
+              {fieldErrors.userId && <p className="text-sm text-red-600 mt-1">{fieldErrors.userId}</p>}
             </div>
             <div>
               <Label>ID contrato</Label>
-              <Input value={membershipForm.contract_id} onChange={(e) => setMembershipForm((f) => ({ ...f, contract_id: e.target.value }))} className={fieldErrors.contract_id ? 'border-red-500' : ''} required />
-              {fieldErrors.contract_id && <p className="text-sm text-red-600 mt-1">{fieldErrors.contract_id}</p>}
+              <Input value={membershipForm.contractId} onChange={(e) => setMembershipForm((f) => ({ ...f, contractId: e.target.value }))} className={fieldErrors.contractId ? 'border-red-500' : ''} required />
+              {fieldErrors.contractId && <p className="text-sm text-red-600 mt-1">{fieldErrors.contractId}</p>}
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpenMembership(null)}>Cancelar</Button>

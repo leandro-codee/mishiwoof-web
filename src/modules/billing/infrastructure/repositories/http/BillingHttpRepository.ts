@@ -52,7 +52,7 @@ export const billingApi = {
   },
 
   processPayment(body: ProcessPaymentRequest): Promise<PaymentAttemptResponse> {
-    return httpClient.post<PaymentAttemptResponse>(`${BILLING}/subscriptions/${body.subscription_id}/pay`, body);
+    return httpClient.post<PaymentAttemptResponse>(`${BILLING}/subscriptions/${body.subscriptionId}/pay`, body);
   },
 
   retryPayment(subscriptionId: string, body: RetryPaymentRequest): Promise<PaymentAttemptResponse> {

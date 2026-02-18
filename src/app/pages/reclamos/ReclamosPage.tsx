@@ -70,18 +70,18 @@ export function ReclamosPage() {
     }
     try {
       await createMutation.mutateAsync({
-        pet_id: petId,
-        subscription_id: subscriptionId,
-        vet_name: vetName.trim(),
-        vet_clinic: vetClinic.trim() || undefined,
-        attention_date: attentionDate,
+        petId: petId,
+        subscriptionId: subscriptionId,
+        vetName: vetName.trim(),
+        vetClinic: vetClinic.trim() || undefined,
+        attentionDate: attentionDate,
         diagnosis: diagnosis.trim(),
-        treatment_description: treatmentDescription.trim() || undefined,
+        treatmentDescription: treatmentDescription.trim() || undefined,
         items: [
           {
-            coverage_type_id: coverageTypeId,
+            coverageTypeId: coverageTypeId,
             description: itemDescription.trim(),
-            amount_clp: amount,
+            amountClp: amount,
           },
         ],
       });
@@ -154,7 +154,7 @@ export function ReclamosPage() {
                   <SelectTrigger className={fieldErrors.subscription_id ? 'border-red-500' : ''}><SelectValue placeholder="Selecciona suscripción" /></SelectTrigger>
                   <SelectContent>
                     {subscriptions.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>{s.plan_name ?? s.plan_id} · {s.status}</SelectItem>
+                      <SelectItem key={s.id} value={s.id}>{s.planName ?? s.planId} · {s.status}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -227,9 +227,9 @@ export function ReclamosPage() {
             <li key={c.id} className="bg-white rounded-xl border border-gray-200 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <p className="font-semibold text-black">{c.claim_number}</p>
-                  <p className="text-sm text-gray-600">{c.vet_name} · {c.diagnosis}</p>
-                  <p className="text-sm text-gray-500">{new Date(c.attention_date).toLocaleDateString('es-CL')} · Total: ${c.total_amount_clp.toLocaleString('es-CL')}</p>
+                  <p className="font-semibold text-black">{c.claimNumber}</p>
+                  <p className="text-sm text-gray-600">{c.vetName} · {c.diagnosis}</p>
+                  <p className="text-sm text-gray-500">{new Date(c.attentionDate).toLocaleDateString('es-CL')} · Total: ${c.totalAmountClp.toLocaleString('es-CL')}</p>
                 </div>
                 <span className={`text-sm font-medium px-2 py-1 rounded ${
                   c.status === 'APPROVED' || c.status === 'PAID' ? 'bg-green-100 text-green-800' :

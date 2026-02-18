@@ -53,8 +53,8 @@ export function useCreateSubscription() {
 export function useProcessPayment(subscriptionId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: { payment_method_id?: string; idempotency_key: string }) =>
-      billingApi.processPayment({ subscription_id: subscriptionId, ...body }),
+    mutationFn: (body: { paymentMethodId?: string; idempotencyKey: string }) =>
+      billingApi.processPayment({ subscriptionId: subscriptionId, ...body }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: billingKeys.subscriptions });
       qc.invalidateQueries({ queryKey: billingKeys.payments });

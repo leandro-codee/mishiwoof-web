@@ -181,7 +181,7 @@ export class HttpClient {
       // Using window.location to ensure full page reload and state reset
       if (typeof window !== 'undefined') {
         const currentPath = window.location.pathname;
-        const loginUrl = '/login';
+        const loginUrl = '/iniciar-sesion';
         
         // Don't redirect if already on login page
         if (currentPath !== loginUrl) {

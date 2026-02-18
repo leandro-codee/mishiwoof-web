@@ -26,14 +26,27 @@ export function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login({ email, password });
+      const response = await login({ email, password });
       toast.success('Sesión iniciada correctamente');
+      
+      // Redirect based on user role
+      const userRole = response.user.role;
+      
       if (from === '/contratacion' && planId) {
         navigate('/contratacion', { state: { planId }, replace: true });
       } else if (from) {
         navigate(from, { replace: true });
       } else {
-        navigate('/sucursal-virtual', { replace: true });
+        // Redirect based on role
+        if (userRole === 'ADMIN') {
+          navigate('/admin', { replace: true });
+        } else if (userRole === 'SELLER') {
+          navigate('/vendedor', { replace: true });
+        } else if (userRole === 'ENTERPRISE') {
+          navigate('/empresa', { replace: true });
+        } else {
+          navigate('/mi-cuenta', { replace: true });
+        }
       }
     } catch (err) {
       const details = getValidationDetails(err);
@@ -53,7 +66,7 @@ export function LoginPage() {
     <div className="min-h-screen flex flex-col bg-[#FFDCE6]">
       <div className="max-w-md mx-auto w-full px-4 py-12 flex flex-col justify-center">
         <div className="bg-white rounded-2xl p-8 shadow-lg">
-          <Link to="/home" className="inline-block mb-8">
+          <Link to="/inicio" className="inline-block mb-8">
             <img src="/assets/logo woof.svg" alt="MishiWoof" className="h-10" />
           </Link>
           <h1 className="text-2xl font-bold text-black mb-2">Iniciar sesión</h1>
@@ -97,12 +110,12 @@ export function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-gray-600">
             ¿No tienes cuenta?{' '}
-            <Link to="/register" className="text-[#FF6F61] font-medium hover:underline">
+            <Link to="/registro" className="text-[#FF6F61] font-medium hover:underline">
               Regístrate
             </Link>
           </p>
           <p className="mt-2 text-center text-sm">
-            <Link to="/home" className="text-gray-500 hover:text-black">
+            <Link to="/inicio" className="text-gray-500 hover:text-black">
               Volver al inicio
             </Link>
           </p>

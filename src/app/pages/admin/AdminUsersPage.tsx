@@ -34,7 +34,7 @@ import { getErrorMessage, getValidationDetails } from '@shared/infrastructure/ht
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const ROLES = ['USER', 'ADMIN'];
+const ROLES = ['CUSTOMER', 'ADMIN', 'SELLER', 'ENTERPRISE'];
 
 export function AdminUsersPage() {
   const [page, setPage] = useState(1);
@@ -61,7 +61,7 @@ export function AdminUsersPage() {
   const [createForm, setCreateForm] = useState<CreateUserRequest>({
     email: '',
     password: '',
-    role: 'USER',
+    role: 'CUSTOMER',
   });
   const [editForm, setEditForm] = useState<UpdateUserRequest>({});
 
@@ -71,7 +71,7 @@ export function AdminUsersPage() {
       await createMutation.mutateAsync(createForm);
       toast.success('Usuario creado');
       setOpenCreate(false);
-      setCreateForm({ email: '', password: '', role: 'USER' });
+      setCreateForm({ email: '', password: '', role: 'CUSTOMER' });
       setFieldErrors({});
     } catch (err) {
       const details = getValidationDetails(err);
@@ -123,9 +123,14 @@ export function AdminUsersPage() {
     setEditForm({
       email: user.email,
       role: user.role,
-      first_name: user.first_name,
-      last_name: user.last_name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       phone: user.phone,
+      dni: user.dni,
+      birthDate: user.birthDate,
+      address: user.address,
+      stateId: user.stateId,
+      gender: user.gender,
     });
     setFieldErrors({});
     setOpenEdit(true);
@@ -166,7 +171,7 @@ export function AdminUsersPage() {
                 {users.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.email}</TableCell>
-                    <TableCell>{[user.first_name, user.last_name].filter(Boolean).join(' ') || '—'}</TableCell>
+                    <TableCell>{[user.firstName, user.lastName].filter(Boolean).join(' ') || '—'}</TableCell>
                     <TableCell>{user.role}</TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>Editar</Button>
@@ -241,7 +246,7 @@ export function AdminUsersPage() {
             </div>
             <div>
               <Label>Rol</Label>
-              <Select value={editForm.role ?? 'USER'} onValueChange={(v) => setEditForm((f) => ({ ...f, role: v }))}>
+              <Select value={editForm.role ?? 'CUSTOMER'} onValueChange={(v) => setEditForm((f) => ({ ...f, role: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {ROLES.map((r) => (
@@ -250,17 +255,46 @@ export function AdminUsersPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Nombre</Label>
-              <Input value={editForm.first_name ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, first_name: e.target.value }))} placeholder="Nombre" />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Nombre</Label>
+                <Input value={editForm.firstName ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, firstName: e.target.value }))} placeholder="Nombre" />
+              </div>
+              <div>
+                <Label>Apellido</Label>
+                <Input value={editForm.lastName ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, lastName: e.target.value }))} placeholder="Apellido" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>DNI/RUT</Label>
+                <Input value={editForm.dni ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, dni: e.target.value }))} placeholder="12.345.678-9" />
+              </div>
+              <div>
+                <Label>Teléfono</Label>
+                <Input value={editForm.phone ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))} placeholder="+56912345678" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Fecha de Nacimiento</Label>
+                <Input type="date" value={editForm.birthDate ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, birthDate: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Género</Label>
+                <Select value={editForm.gender ?? ''} onValueChange={(v) => setEditForm((f) => ({ ...f, gender: v }))}>
+                  <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MALE">Masculino</SelectItem>
+                    <SelectItem value="FEMALE">Femenino</SelectItem>
+                    <SelectItem value="OTHER">Otro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div>
-              <Label>Apellido</Label>
-              <Input value={editForm.last_name ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, last_name: e.target.value }))} placeholder="Apellido" />
-            </div>
-            <div>
-              <Label>Teléfono</Label>
-              <Input value={editForm.phone ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))} placeholder="Teléfono" />
+              <Label>Dirección</Label>
+              <Input value={editForm.address ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, address: e.target.value }))} placeholder="Dirección completa" />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpenEdit(false)}>Cancelar</Button>

@@ -6,7 +6,7 @@
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { usePlansList } from '@modules/plans/presentation/hooks/usePlans';
+import { usePlans } from '@modules/plans/presentation/hooks/usePlans';
 import { useAuth } from '@modules/auth/presentation/hooks/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -18,11 +18,11 @@ export function PlanesyCoberturasPage() {
   const navigate = useNavigate();
   const isPlanes = location.pathname === '/planes-y-coberturas';
   const { isAuthenticated } = useAuth();
-  const { data: plans = [], isLoading } = usePlansList();
+  const { data: plans = [], isLoading } = usePlans();
 
   const handleContratar = (planId: string) => {
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: '/contratacion', planId } });
+      navigate('/iniciar-sesion', { state: { from: '/contratacion', planId } });
       return;
     }
     navigate('/contratacion', { state: { planId } });
@@ -37,7 +37,7 @@ export function PlanesyCoberturasPage() {
             {/* Navbar inside white container */}
             <nav className="mb-8 md:mb-12">
               <div className="flex items-center justify-between">
-                <Link to="/home" className="flex items-center">
+                <Link to="/inicio" className="flex items-center">
                   <img 
                     src="/assets/logo woof.svg" 
                     alt="Mishiwoof Logo" 
@@ -46,7 +46,7 @@ export function PlanesyCoberturasPage() {
                 </Link>
                 <div className="flex items-center gap-4 md:gap-6">
                   <Link 
-                    to="/home" 
+                    to="/inicio" 
                     className={`text-sm md:text-base transition-all rounded-full px-4 md:px-6 py-2 border-2 ${
                       location.pathname === '/home'
                         ? 'text-[#FF6F61] font-semibold border-transparent'
@@ -161,14 +161,14 @@ export function PlanesyCoberturasPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                {plans.filter((p) => p.is_published).map((plan, idx) => (
+                {plans.filter((p) => p.isPublished).map((plan, idx) => (
                   <div 
                     key={plan.id} 
                     className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100"
                   >
                     <div className={`${PLAN_COLORS[idx % PLAN_COLORS.length]} h-32 md:h-40 flex items-center justify-center p-4`}>
-                      {plan.image_url ? (
-                        <img src={plan.image_url} alt={plan.name} className="w-full h-full object-contain" />
+                      {plan.imageUrl ? (
+                        <img src={plan.imageUrl} alt={plan.name} className="w-full h-full object-contain" />
                       ) : (
                         <span className="text-4xl font-bold text-gray-600">{plan.name.slice(0, 1)}</span>
                       )}
@@ -176,7 +176,7 @@ export function PlanesyCoberturasPage() {
                     <div className="p-4">
                       <h3 className="text-lg md:text-xl font-bold text-black mb-1">{plan.name}</h3>
                       <p className="text-sm md:text-base font-semibold text-gray-700 mb-2">
-                        {plan.base_price_uf} UF/mes
+                        {plan.basePriceUf} UF/mes
                       </p>
                       <div className="flex items-center justify-between">
                         <Button variant="ghost" className="text-[#FF6F61] p-0 h-auto" onClick={() => handleContratar(plan.id)}>
@@ -228,7 +228,7 @@ export function PlanesyCoberturasPage() {
       {/* Footer */}
       <footer className="bg-[#E0E8FF] px-4 md:px-8 py-8 md:py-12">
         <div className="max-w-7xl mx-auto flex justify-center">
-          <Link to="/home" className="flex items-center">
+          <Link to="/inicio" className="flex items-center">
             <img 
               src="/assets/logo woof.svg" 
               alt="Mishiwoof Logo" 

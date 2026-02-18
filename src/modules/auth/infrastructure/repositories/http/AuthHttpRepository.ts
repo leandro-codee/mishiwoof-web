@@ -51,11 +51,11 @@ export const authApi = {
 
 function setTokensFromLogin(res: LoginResponse | RegisterResponse): void {
   const user = {
-    user_id: res.user_id,
-    email: res.email,
-    role: 'role' in res ? res.role : 'CUSTOMER',
+    user_id: res.user.id,
+    email: res.user.email,
+    role: res.user.role,
   };
-  authStore.setTokens(res.access_token, res.refresh_token, user);
+  authStore.setTokens(res.accessToken, res.refreshToken, user);
 }
 
 export async function loginAndStore(body: LoginRequest): Promise<LoginResponse> {
@@ -66,6 +66,6 @@ export async function loginAndStore(body: LoginRequest): Promise<LoginResponse> 
 
 export async function registerAndStore(body: RegisterRequest): Promise<RegisterResponse> {
   const res = await authApi.register(body);
-  setTokensFromLogin({ ...res, role: 'CUSTOMER' });
+  setTokensFromLogin(res);
   return res;
 }

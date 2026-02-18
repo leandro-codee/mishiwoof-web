@@ -13,6 +13,13 @@ import {
   ClipboardList,
   Building2,
   TrendingUp,
+  FileCheck,
+  Receipt,
+  CreditCard,
+  Gift,
+  Stethoscope,
+  Landmark,
+  Calculator,
 } from 'lucide-react';
 
 const navItems = [
@@ -22,6 +29,13 @@ const navItems = [
   { to: '/admin/cupones', end: false, label: 'Cupones', icon: Ticket },
   { to: '/admin/reclamos', end: false, label: 'Reclamos', icon: ClipboardList },
   { to: '/admin/empresas', end: false, label: 'Empresas', icon: Building2 },
+  { to: '/admin/contratos', end: false, label: 'Contratos', icon: FileCheck },
+  { to: '/admin/facturas-empresariales', end: false, label: 'Facturas', icon: Receipt },
+  { to: '/admin/pagos', end: false, label: 'Pagos', icon: CreditCard },
+  { to: '/admin/beneficios', end: false, label: 'Beneficios', icon: Gift },
+  { to: '/admin/veterinarias', end: false, label: 'Veterinarias', icon: Stethoscope },
+  { to: '/admin/cuentas-bancarias', end: false, label: 'Cuentas Bancarias', icon: Landmark },
+  { to: '/admin/reglas-precio', end: false, label: 'Reglas de Precio', icon: Calculator },
   { to: '/admin/indicadores', end: false, label: 'Indicadores (UF)', icon: TrendingUp },
 ];
 
@@ -56,7 +70,7 @@ export function AdminLayout() {
         </nav>
         <div className="p-2 border-t border-gray-200">
           <Button variant="ghost" className="w-full justify-start" asChild>
-            <Link to="/home">Ir al sitio</Link>
+            <Link to="/inicio">Ir al sitio</Link>
           </Button>
           <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700" onClick={() => logout()}>
             Cerrar sesión

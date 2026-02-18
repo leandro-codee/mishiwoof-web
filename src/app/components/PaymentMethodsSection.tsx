@@ -59,13 +59,13 @@ export function PaymentMethodsSection() {
     }
     try {
       await tokenizeMutation.mutateAsync({
-        card_number: cardNumber.replace(/\s/g, ''),
-        exp_month: month,
-        exp_year: year,
+        cardNumber: cardNumber.replace(/\s/g, ''),
+        expMonth: month,
+        expYear: year,
         cvv,
-        cardholder_name: cardholderName.trim(),
-        is_primary: isPrimary,
-        is_backup: false,
+        cardholderName: cardholderName.trim(),
+        isPrimary: isPrimary,
+        isBackup: false,
       });
       toast.success('Tarjeta agregada correctamente');
       setOpen(false);
@@ -225,14 +225,14 @@ export function PaymentMethodsSection() {
             >
               <div className="flex items-center gap-3">
                 <span className="font-medium">
-                  {pm.card_brand ?? 'Tarjeta'} ****{pm.last4 ?? '****'}
+                  {pm.cardBrand ?? 'Tarjeta'} ****{pm.last4 ?? '****'}
                 </span>
-                {pm.is_primary && (
+                {pm.isPrimary && (
                   <span className="text-xs bg-[#FF6F61]/20 text-[#FF6F61] px-2 py-0.5 rounded">Principal</span>
                 )}
               </div>
               <div className="flex gap-2">
-                {!pm.is_primary && (
+                {!pm.isPrimary && (
                   <Button
                     variant="outline"
                     size="sm"
