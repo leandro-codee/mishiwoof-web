@@ -52,7 +52,7 @@ export default function AdminPlansPage() {
             Administra los planes de seguro para mascotas
           </p>
         </div>
-        <Button onClick={() => navigate('/admin/planes/crear')}>
+        <Button onClick={() => navigate('/admin/planes/nuevo')}>
           <Plus className="h-4 w-4 mr-2" />
           Crear Plan
         </Button>
@@ -68,10 +68,8 @@ export default function AdminPlansPage() {
                   <p className="text-sm text-gray-500 mt-1">
                     {plan.basePriceUf} UF / {formatCurrency(plan.basePriceCLP)}
                   </p>
-                  {plan.description && (
-                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                      {plan.description}
-                    </p>
+                  {plan.tier && (
+                    <p className="text-sm text-gray-600 mt-2">{plan.tier}</p>
                   )}
                 </div>
                 {plan.color && (
@@ -82,7 +80,6 @@ export default function AdminPlansPage() {
                 )}
               </div>
 
-              {/* Badges */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {plan.isPublished && (
                   <Badge variant="default">Publicado</Badge>
@@ -92,17 +89,6 @@ export default function AdminPlansPage() {
                 )}
                 {!plan.isActive && (
                   <Badge variant="secondary">Inactivo</Badge>
-                )}
-                {plan.stars && (
-                  <Badge variant="outline">
-                    {'⭐'.repeat(plan.stars)}
-                  </Badge>
-                )}
-                {plan.hasDental && (
-                  <Badge variant="outline">Dental</Badge>
-                )}
-                {plan.hasPreventive && (
-                  <Badge variant="outline">Preventivo</Badge>
                 )}
               </div>
 
@@ -169,7 +155,7 @@ export default function AdminPlansPage() {
       {plans && plans.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg mb-4">No hay planes creados</p>
-          <Button onClick={() => navigate('/admin/planes/crear')}>
+          <Button onClick={() => navigate('/admin/planes/nuevo')}>
             <Plus className="h-4 w-4 mr-2" />
             Crear Primer Plan
           </Button>

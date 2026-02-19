@@ -21,6 +21,17 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
+    proxy: {
+      // En dev: /api/* se reenvía al backend (mismo host que VITE_PUBLIC_API_URL o 8080)
+      '/api': {
+        target: (() => {
+          const u = process.env.VITE_PUBLIC_API_URL || process.env.VITE_API_BASE_URL || 'localhost:8080';
+          return u.startsWith('http') ? u : `http://${u.replace(/\/.*$/, '')}`;
+        })(),
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   build: {
     sourcemap: true,

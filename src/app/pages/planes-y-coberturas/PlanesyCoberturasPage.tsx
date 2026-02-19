@@ -6,9 +6,10 @@
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { usePlans } from '@modules/plans/presentation/hooks/usePlans';
+import { usePlans, usePlan } from '@modules/plans/presentation/hooks/usePlans';
 import { useAuth } from '@modules/auth/presentation/hooks/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { Plan } from '@modules/plans/application/dto/PlanDTO';
 
 const PLAN_COLORS = ['bg-pink-200', 'bg-blue-200', 'bg-green-200', 'bg-yellow-200', 'bg-purple-200'];
 const PLAN_DOT_COLORS = ['bg-pink-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'];
@@ -16,9 +17,12 @@ const PLAN_DOT_COLORS = ['bg-pink-500', 'bg-blue-500', 'bg-green-500', 'bg-yello
 export function PlanesyCoberturasPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const isPlanes = location.pathname === '/planes-y-coberturas';
+  const isPlanes = location.pathname === '/planes-y-coberturas' || location.pathname === '/planes';
   const { isAuthenticated } = useAuth();
   const { data: plans = [], isLoading } = usePlans();
+  const firstPlanId = plans.length > 0 ? plans[0].id : undefined;
+  const { data: planWithCoverages } = usePlan(firstPlanId, true);
+  const displayPlan: Plan | null = planWithCoverages ?? plans[0] ?? null;
 
   const handleContratar = (planId: string) => {
     if (!isAuthenticated) {
@@ -91,25 +95,36 @@ export function PlanesyCoberturasPage() {
                   exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                 </p>
 
+                {displayPlan && (
                 <div className="mb-6">
                   <h2 className="text-xl md:text-2xl font-bold text-black mb-4">
-                    Plan 01 Plan First
+                    {displayPlan.name}
                   </h2>
                   
-                  {/* Table-like structure */}
+                  {/* Tabla de coberturas del plan (datos reales desde API) */}
                   <div className="border border-gray-200 rounded-lg overflow-hidden mb-6">
                     <div className="grid grid-cols-3 bg-gray-50 border-b border-gray-200">
                       <div className="p-3 font-semibold text-sm md:text-base text-black border-r border-gray-200">Prestación</div>
                       <div className="p-3 font-semibold text-sm md:text-base text-black border-r border-gray-200">Cobertura</div>
                       <div className="p-3 font-semibold text-sm md:text-base text-black">Tope eventos</div>
                     </div>
-                    {[1, 2, 3, 4, 5].map((row) => (
-                      <div key={row} className="grid grid-cols-3 border-b border-gray-200 last:border-b-0">
-                        <div className="p-3 text-sm md:text-base text-gray-700 border-r border-gray-200">Prestación {row}</div>
-                        <div className="p-3 text-sm md:text-base text-gray-700 border-r border-gray-200">Cobertura {row}</div>
-                        <div className="p-3 text-sm md:text-base text-gray-700">Tope {row}</div>
-                      </div>
-                    ))}
+                    {displayPlan.coverages && displayPlan.coverages.length > 0 ? (
+                      displayPlan.coverages.map((c) => (
+                        <div key={c.id} className="grid grid-cols-3 border-b border-gray-200 last:border-b-0">
+                          <div className="p-3 text-sm md:text-base text-gray-700 border-r border-gray-200">
+                            {c.coverageType?.name ?? '—'}
+                          </div>
+                          <div className="p-3 text-sm md:text-base text-gray-700 border-r border-gray-200">
+                            {c.coveragePercentage != null ? `${c.coveragePercentage}%` : '—'}
+                          </div>
+                          <div className="p-3 text-sm md:text-base text-gray-700">
+                            {c.maxAmountPerEventUf != null ? `${c.maxAmountPerEventUf} UF` : c.maxAnnualEvents != null ? `${c.maxAnnualEvents} eventos/año` : '—'}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-sm text-gray-500 text-center">Sin coberturas cargadas para este plan.</div>
+                    )}
                   </div>
 
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -117,7 +132,7 @@ export function PlanesyCoberturasPage() {
                       asChild
                       className="bg-[#FF6F61] text-white hover:bg-[#FF6F61]/90 rounded-full px-6 md:px-8"
                     >
-                      <Link to="/contratacion" state={plans[0] ? { planId: plans[0].id } : undefined}>Contratar</Link>
+                      <Link to="/contratacion" state={{ planId: displayPlan.id }}>Contratar</Link>
                     </Button>
                     <Link 
                       to="/sucursal-virtual" 
@@ -131,6 +146,10 @@ export function PlanesyCoberturasPage() {
                     </Link>
                   </div>
                 </div>
+                )}
+                {!displayPlan && !isLoading && (
+                  <p className="text-gray-500 mb-6">No hay planes disponibles. Contáctanos para más información.</p>
+                )}
               </div>
 
               {/* Right Side - Illustration */}

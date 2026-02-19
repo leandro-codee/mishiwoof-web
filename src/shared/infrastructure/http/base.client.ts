@@ -285,13 +285,31 @@ export class HttpClient {
 }
 
 /**
- * Create default HTTP client instance
+ * Normaliza la URL base de la API (debe incluir protocolo para que los fetch se ejecuten).
+ */
+function normalizeBaseURL(url: string): string {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+  return `http://${trimmed}`;
+}
+
+/**
+ * Create default HTTP client instance.
+ * Usa VITE_API_BASE_URL o VITE_PUBLIC_API_URL (mismo valor que apiClient para consistencia).
  */
 export function createHttpClient(config?: Partial<HttpClientConfig>): HttpClient {
-  const baseURL = config?.baseURL || import.meta.env.VITE_PUBLIC_API_URL || '';
+  const raw =
+    config?.baseURL ||
+    import.meta.env.VITE_API_BASE_URL ||
+    import.meta.env.VITE_PUBLIC_API_URL ||
+    '';
+  const baseURL = normalizeBaseURL(raw);
 
   if (!baseURL && import.meta.env.PROD) {
-    console.warn('[HTTP] No API URL configured. Set VITE_PUBLIC_API_URL environment variable.');
+    console.warn(
+      '[HTTP] No API URL configured. Set VITE_API_BASE_URL or VITE_PUBLIC_API_URL (e.g. http://localhost:8080).'
+    );
   }
 
   return new HttpClient({

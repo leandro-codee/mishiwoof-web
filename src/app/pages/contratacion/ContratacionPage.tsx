@@ -197,7 +197,7 @@ export function ContratacionPage() {
                 <h1 className="text-3xl md:text-4xl font-bold text-black mb-2">Contratación</h1>
                 <h2 className="text-2xl font-bold text-[#FF6F61] mb-6">{selectedPlan?.name ?? 'Plan'}</h2>
                 {selectedPlan && (
-                  <p className="text-gray-600 mb-6">{selectedPlan.basePriceUf} UF/mes · {selectedPlan.description ?? ''}</p>
+                  <p className="text-gray-600 mb-6">{selectedPlan.basePriceUf} UF/mes{selectedPlan.tier ? ` · ${selectedPlan.tier}` : ''}</p>
                 )}
 
                 {step === 'pet' && (

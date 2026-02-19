@@ -20,8 +20,8 @@ export interface Coverage {
   id: string;
   planId: string;
   coverageTypeId: string;
-  benefitId: string;
-  coveragePercentage?: number;  // 0-100
+  benefitId?: string;
+  coveragePercentage?: number;
   maxAmountPerEventUf?: number;
   maxAmountPerEventClp?: number;
   maxAnnualEvents?: number;
@@ -33,7 +33,6 @@ export interface Coverage {
 export interface Plan {
   id: string;
   name: string;
-  description?: string;
   basePriceUf: number;
   basePriceCLP: number;
   isActive: boolean;
@@ -41,50 +40,41 @@ export interface Plan {
   termsPdfUrl?: string;
   imageUrl?: string;
   color?: string;
-  stars?: number;
-  hasDental: boolean;
-  hasPreventive: boolean;
-  deductibleUf: number;
-  maxAnnualCoverageUf?: number;
+  tier?: string;
   createdAt: string;
   updatedAt: string;
   coverages?: Coverage[];
 }
 
 // ==================== REQUEST DTOs ====================
+// Alineados con tabla plans: name, price_uf, is_active, is_public, pdf_url, img_url, color, tier.
 
 export interface CreatePlanRequest {
   name: string;
-  description?: string;
   basePriceUf: number;
   isActive: boolean;
   isPublished: boolean;
   color?: string;
-  stars?: number;
-  hasDental: boolean;
-  hasPreventive: boolean;
-  deductibleUf: number;
-  maxAnnualCoverageUf?: number;
+  tier?: string;
+  pdfUrl?: string;
+  imageUrl?: string;
 }
 
 export interface UpdatePlanRequest {
   name?: string;
-  description?: string;
   basePriceUf?: number;
   isActive?: boolean;
   isPublished?: boolean;
   color?: string;
-  stars?: number;
-  hasDental?: boolean;
-  hasPreventive?: boolean;
-  deductibleUf?: number;
-  maxAnnualCoverageUf?: number;
+  tier?: string;
+  pdfUrl?: string;
+  imageUrl?: string;
 }
 
 export interface CoverageInput {
   id?: string;
   coverageTypeId: string;
-  benefitId: string;
+  benefitId?: string;
   coveragePercentage?: number;
   maxAmountPerEventUf?: number;
   maxAnnualEvents?: number;

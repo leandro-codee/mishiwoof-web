@@ -2,19 +2,59 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@components/ui/button';
 import { PlanEditor } from '@app/components/plans/PlanEditor';
+import { useCreatePlan, useBulkUpdateCoverages } from '@modules/plans/presentation/hooks/usePlans';
+import type { CreatePlanRequest } from '@modules/plans/application/dto/PlanDTO';
 
 export const CrearPlanPage = () => {
   const navigate = useNavigate();
+  const createPlanMutation = useCreatePlan();
+  const bulkUpdateCoveragesMutation = useBulkUpdateCoverages();
 
-  const handleSave = async (data: any) => {
+  const handleSave = async (data: {
+    generalInfo: {
+      name: string;
+      basePriceUF?: number;
+      color?: string;
+      tier?: string;
+      isActive?: boolean;
+      isPublished?: boolean;
+      [key: string]: unknown;
+    };
+    coverages?: Array<{
+      coverageTypeId: string;
+      benefitId?: string;
+      coveragePercentage?: number;
+      maxAmountPerEventUF?: number;
+      maxAmountPerEventUf?: number;
+      maxAnnualEvents?: number;
+      disclaimer?: string;
+    }>;
+  }) => {
     try {
-      // TODO: Implementar creación de plan
-      console.log('Creating plan:', data);
-      
-      // Simulación
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // Success - volver a lista de planes
+      const payload: CreatePlanRequest = {
+        name: data.generalInfo.name,
+        basePriceUf: Number(data.generalInfo.basePriceUF) || 0,
+        isActive: data.generalInfo.isActive ?? true,
+        isPublished: data.generalInfo.isPublished ?? false,
+        color: data.generalInfo.color,
+        tier: data.generalInfo.tier,
+      };
+      const plan = await createPlanMutation.mutateAsync(payload);
+      if (data.coverages?.length) {
+        await bulkUpdateCoveragesMutation.mutateAsync({
+          planId: plan.id,
+          data: {
+            coverages: data.coverages.map((c) => ({
+              coverageTypeId: c.coverageTypeId,
+              benefitId: c.benefitId ?? '',
+              coveragePercentage: c.coveragePercentage,
+              maxAmountPerEventUf: c.maxAmountPerEventUF ?? c.maxAmountPerEventUf,
+              maxAnnualEvents: c.maxAnnualEvents,
+              disclaimer: c.disclaimer,
+            })),
+          },
+        });
+      }
       navigate('/admin/planes');
     } catch (error) {
       console.error('Error creating plan:', error);

@@ -89,6 +89,10 @@ export const router = createBrowserRouter([
     path: '/planes',
     element: <PlanesyCoberturasPage />, // Público
   },
+  {
+    path: '/planes-y-coberturas',
+    element: <PlanesyCoberturasPage />, // Público (misma página)
+  },
   
   // Rutas de Mascotas
   {
