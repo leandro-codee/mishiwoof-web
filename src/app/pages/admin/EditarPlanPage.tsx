@@ -407,18 +407,24 @@ export default function EditarPlanPage() {
                           </td>
                           <td className="px-3 py-2">
                             <Input
-                              type="number"
+                              type={!coverage.maxAmountPerEventUf ? "text" : "number"}
                               step="0.01"
                               min={0}
                               className="w-24 text-center mx-auto"
-                              value={coverage.maxAmountPerEventUf ?? ''}
-                              onChange={(e) =>
+                              value={!coverage.maxAmountPerEventUf ? 'Sin Tope' : coverage.maxAmountPerEventUf}
+                              onChange={(e) => {
+                                const val = e.target.value;
                                 handleCoverageChange(
                                   index,
                                   'maxAmountPerEventUf',
-                                  e.target.value === '' ? undefined : parseFloat(e.target.value)
-                                )
-                              }
+                                  val === '' ? undefined : parseFloat(val)
+                                );
+                              }}
+                              onFocus={(e) => {
+                                if (!coverage.maxAmountPerEventUf) {
+                                  e.target.select();
+                                }
+                              }}
                             />
                           </td>
                           <td className="px-3 py-2">

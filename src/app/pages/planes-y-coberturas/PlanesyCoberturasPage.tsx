@@ -103,22 +103,26 @@ export function PlanesyCoberturasPage() {
                   
                   {/* Tabla de coberturas del plan (datos reales desde API) */}
                   <div className="border border-gray-200 rounded-lg overflow-hidden mb-6">
-                    <div className="grid grid-cols-3 bg-gray-50 border-b border-gray-200">
+                    <div className="grid grid-cols-4 bg-gray-50 border-b border-gray-200">
                       <div className="p-3 font-semibold text-sm md:text-base text-black border-r border-gray-200">Prestación</div>
                       <div className="p-3 font-semibold text-sm md:text-base text-black border-r border-gray-200">Cobertura</div>
-                      <div className="p-3 font-semibold text-sm md:text-base text-black">Tope eventos</div>
+                      <div className="p-3 font-semibold text-sm md:text-base text-black border-r">Tope Cobertura</div>
+                      <div className="p-3 font-semibold text-sm md:text-base text-black">Eventos anuales</div>
                     </div>
                     {displayPlan.coverages && displayPlan.coverages.length > 0 ? (
                       displayPlan.coverages.map((c) => (
-                        <div key={c.id} className="grid grid-cols-3 border-b border-gray-200 last:border-b-0">
+                        <div key={c.id} className="grid grid-cols-4 border-b border-gray-200 last:border-b-0">
                           <div className="p-3 text-sm md:text-base text-gray-700 border-r border-gray-200">
                             {c.coverageType?.name ?? '—'}
                           </div>
                           <div className="p-3 text-sm md:text-base text-gray-700 border-r border-gray-200">
-                            {c.coveragePercentage != null ? `${c.coveragePercentage}%` : '—'}
+                            {c.coveragePercentage != null ? `${c.coveragePercentage*100}%` : '—'}
+                          </div>
+                          <div className="p-3 text-sm md:text-base text-gray-700 border-r">
+                            {c.maxAmountPerEventUf != null ? `${c.maxAmountPerEventUf} uf` : 'Sin Tope'}
                           </div>
                           <div className="p-3 text-sm md:text-base text-gray-700">
-                            {c.maxAmountPerEventUf != null ? `${c.maxAmountPerEventUf} UF` : c.maxAnnualEvents != null ? `${c.maxAnnualEvents} eventos/año` : '—'}
+                            {c.maxAnnualEvents != null ? `${c.maxAnnualEvents} eventos/año` : '—'}
                           </div>
                         </div>
                       ))

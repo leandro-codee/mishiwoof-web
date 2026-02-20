@@ -18,3 +18,9 @@ export interface CreateIndicatorRequest {
   value: number;
   source?: string;
 }
+
+/** Resultado de sincronizar desde CMF */
+export interface SyncFromCMFResult {
+  created: number;
+  skipped: number;
+}
