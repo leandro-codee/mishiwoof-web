@@ -19,6 +19,7 @@ import {
   useSetPrimaryPaymentMethod,
   useDeletePaymentMethod,
 } from '@modules/billing/presentation/hooks/useBilling';
+import { useMercadoPago } from '@modules/billing/presentation/hooks/useMercadoPago';
 import { getErrorMessage, getValidationDetails } from '@shared/infrastructure/http/api.error';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -34,7 +35,9 @@ export function PaymentMethodsSection() {
   const [expYear, setExpYear] = useState('');
   const [cvv, setCvv] = useState('');
   const [cardholderName, setCardholderName] = useState('');
+  const [payerEmail, setPayerEmail] = useState('');
   const [isPrimary, setIsPrimary] = useState(true);
+  const { ready: mpReady, getCardToken, publicKeyConfigured } = useMercadoPago();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const clearFieldError = (key: string) => {
@@ -49,8 +52,19 @@ export function PaymentMethodsSection() {
     e.preventDefault();
     const month = parseInt(expMonth, 10);
     const year = parseInt(expYear, 10);
-    if (!cardNumber.trim() || !month || !year || !cvv.trim() || !cardholderName.trim()) {
-      toast.error('Completa todos los campos');
+    if (
+      !cardNumber.trim() ||
+      !month ||
+      !year ||
+      !cvv.trim() ||
+      !cardholderName.trim() ||
+      !payerEmail.trim()
+    ) {
+      toast.error('Completa todos los campos (incluido el email del pagador)');
+      return;
+    }
+    if (!publicKeyConfigured || !mpReady) {
+      toast.error('Mercado Pago no está listo. Revisa VITE_MP_PUBLIC_KEY.');
       return;
     }
     if (month < 1 || month > 12) {
@@ -58,12 +72,17 @@ export function PaymentMethodsSection() {
       return;
     }
     try {
-      await tokenizeMutation.mutateAsync({
+      const cardToken = await getCardToken({
         cardNumber: cardNumber.replace(/\s/g, ''),
-        expMonth: month,
-        expYear: year,
-        cvv,
+        expirationMonth: String(month).padStart(2, '0'),
+        expirationYear: String(year),
+        securityCode: cvv.trim(),
         cardholderName: cardholderName.trim(),
+      });
+      await tokenizeMutation.mutateAsync({
+        cardToken,
+        cardholderName: cardholderName.trim(),
+        payerEmail: payerEmail.trim(),
         isPrimary: isPrimary,
         isBackup: false,
       });
@@ -74,8 +93,11 @@ export function PaymentMethodsSection() {
       setExpYear('');
       setCvv('');
       setCardholderName('');
+      setPayerEmail('');
       setFieldErrors({});
     } catch (err) {
+        console.error('Error raw:', err)
+        console.error('Error JSON:', JSON.stringify(err, null, 2))
       const details = getValidationDetails(err);
       if (details) {
         const flat: Record<string, string> = {};
@@ -192,6 +214,18 @@ export function PaymentMethodsSection() {
                 />
                 {fieldErrors.cardholderName && <p className="text-sm text-red-600 mt-1">{fieldErrors.cardholderName}</p>}
               </div>
+              <div>
+                <Label>Email del pagador</Label>
+                <Input
+                  type="email"
+                  value={payerEmail}
+                  onChange={(e) => { setPayerEmail(e.target.value); clearFieldError('payerEmail'); }}
+                  placeholder="correo@testuser.com"
+                  className={fieldErrors.payerEmail ? 'border-red-500' : ''}
+                  required
+                />
+                {fieldErrors.payerEmail && <p className="text-sm text-red-600 mt-1">{fieldErrors.payerEmail}</p>}
+              </div>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -204,7 +238,7 @@ export function PaymentMethodsSection() {
               <Button
                 type="submit"
                 className="w-full bg-[#FF6F61] text-white"
-                disabled={tokenizeMutation.isPending}
+                disabled={tokenizeMutation.isPending || !mpReady}
               >
                 {tokenizeMutation.isPending ? 'Guardando...' : 'Agregar'}
               </Button>

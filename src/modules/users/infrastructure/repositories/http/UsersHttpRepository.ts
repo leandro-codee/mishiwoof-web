@@ -11,8 +11,8 @@ import type {
   UpdateUserRequest,
 } from '../../../application/dto/UserDTO';
 
-const BASE = '/api/v1';
-const ADMIN = '/api/v1/admin/users';
+const BASE = '';
+const ADMIN = '/admin/users';
 
 export const usersApi = {
   getMe(): Promise<UserResponse> {

@@ -18,6 +18,7 @@ interface AuthState {
   refreshToken: string | null;
   user: AuthUser | null;
   setTokens: (accessToken: string, refreshToken: string, user: AuthUser) => void;
+  setSessionTokens: (accessToken: string, refreshToken: string) => void;
   setUser: (user: AuthUser | null) => void;
   clearAuth: () => void;
   getAccessToken: () => string | null;
@@ -51,8 +52,22 @@ export const authStore: AuthState = {
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
-    // Legacy key for base.client.ts fallback
     localStorage.setItem('auth_token', accessToken);
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+  },
+
+  /**
+   * Tras POST /auth/refresh: rotación estricta — guardar siempre el par nuevo (no reutilizar refresh viejo).
+   */
+  setSessionTokens(accessToken: string, refreshToken: string) {
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    localStorage.setItem('auth_token', accessToken);
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
   },
 
   setUser(user: AuthUser | null) {
@@ -69,14 +84,16 @@ export const authStore: AuthState = {
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     sessionStorage.removeItem('auth_token');
   },
 
   getAccessToken() {
-    return this.accessToken ?? localStorage.getItem(ACCESS_TOKEN_KEY);
+    return this.accessToken ?? localStorage.getItem(ACCESS_TOKEN_KEY) ?? localStorage.getItem('accessToken');
   },
 
   getRefreshToken() {
-    return this.refreshToken ?? localStorage.getItem(REFRESH_TOKEN_KEY);
+    return this.refreshToken ?? localStorage.getItem(REFRESH_TOKEN_KEY) ?? localStorage.getItem('refreshToken');
   },
 };

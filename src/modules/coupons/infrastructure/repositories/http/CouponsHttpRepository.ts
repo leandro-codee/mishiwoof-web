@@ -11,7 +11,7 @@ import type {
   UpdateCouponRequest,
 } from '../../../application/dto/CouponDTO';
 
-const BASE = '/api/v1/coupons';
+const BASE = '/coupons';
 
 export const couponsApi = {
   validate(body: ValidateCouponRequest): Promise<ValidateCouponResponse> {

@@ -88,6 +88,11 @@ export class ApiError extends Error {
     return this.statusCode === 422;
   }
 
+  /** 409 Conflict — p. ej. suscripción ya abierta para esa mascota/plan */
+  isConflict(): boolean {
+    return this.statusCode === 409;
+  }
+
   /**
    * Check if error is a 429 Too Many Requests (Rate Limit)
    */

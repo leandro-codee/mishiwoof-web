@@ -5,6 +5,7 @@
  */
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { usePlans, usePlan } from '@modules/plans/presentation/hooks/usePlans';
 import { useAuth } from '@modules/auth/presentation/hooks/useAuth';
@@ -15,14 +16,28 @@ const PLAN_COLORS = ['bg-pink-200', 'bg-blue-200', 'bg-green-200', 'bg-yellow-20
 const PLAN_DOT_COLORS = ['bg-pink-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'];
 
 export function PlanesyCoberturasPage() {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const isPlanes = location.pathname === '/planes-y-coberturas' || location.pathname === '/planes';
   const { isAuthenticated } = useAuth();
   const { data: plans = [], isLoading } = usePlans();
-  const firstPlanId = plans.length > 0 ? plans[0].id : undefined;
-  const { data: planWithCoverages } = usePlan(firstPlanId, true);
-  const displayPlan: Plan | null = planWithCoverages ?? plans[0] ?? null;
+  const currentPlanId = plans[currentIndex]?.id;
+  const { data: planWithCoverages } = usePlan(currentPlanId, true);
+
+  const displayPlan: Plan | null = useMemo(() => {
+    return planWithCoverages ?? plans[currentIndex] ?? null;
+  }, [planWithCoverages, plans, currentIndex]);
+
+  const goNext = () => {
+    if (!plans.length) return;
+    setCurrentIndex((prev) => (prev + 1) % plans.length);
+  };
+
+  const goPrev = () => {
+    if (!plans.length) return;
+    setCurrentIndex((prev) => (prev - 1 + plans.length) % plans.length);
+  };
 
   const handleContratar = (planId: string) => {
     if (!isAuthenticated) {
@@ -31,7 +46,9 @@ export function PlanesyCoberturasPage() {
     }
     navigate('/contratacion', { state: { planId } });
   };
-
+  if (!plans.length && !isLoading) {
+    return <div>No hay planes</div>;
+  }
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Section with Navbar inside */}
@@ -97,9 +114,25 @@ export function PlanesyCoberturasPage() {
 
                 {displayPlan && (
                 <div className="mb-6">
-                  <h2 className="text-xl md:text-2xl font-bold text-black mb-4">
-                    {displayPlan.name}
-                  </h2>
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      onClick={goPrev}
+                      className="p-2 rounded-full border hover:bg-gray-100"
+                    >
+                      ←
+                    </button>
+
+                    <h2 className="text-xl md:text-2xl font-bold text-black text-center flex-1">
+                      {displayPlan.name}
+                    </h2>
+
+                    <button
+                      onClick={goNext}
+                      className="p-2 rounded-full border hover:bg-gray-100"
+                    >
+                      →
+                    </button>
+                  </div>
                   
                   {/* Tabla de coberturas del plan (datos reales desde API) */}
                   <div className="border border-gray-200 rounded-lg overflow-hidden mb-6">
@@ -211,6 +244,7 @@ export function PlanesyCoberturasPage() {
                   </div>
                 ))}
               </div>
+              
             )}
           </div>
         </div>

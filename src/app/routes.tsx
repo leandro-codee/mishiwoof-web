@@ -3,6 +3,7 @@ import { DashboardPage } from '@app/pages/dashboard/DashboardPage';
 import { HomePage } from '@app/pages/home/HomePage';
 import { SucursalVirtualPage } from '@app/pages/sucursal-virtual/SucursalVirtualPage';
 import { PlanesyCoberturasPage } from '@app/pages/planes-y-coberturas/PlanesyCoberturasPage';
+import { ContratacionPage } from '@app/pages/contratacion/ContratacionPage';
 import { LoginPage } from '@app/pages/login/LoginPage';
 import { RegisterPage } from '@app/pages/register/RegisterPage';
 import { NotFoundPage } from '@app/pages/NotFoundPage';
@@ -30,6 +31,7 @@ import { NuevaBonificacionPage } from '@app/pages/bonificaciones/NuevaBonificaci
 import { DetalleBonificacionPage } from '@app/pages/bonificaciones/DetalleBonificacionPage';
 import EditarPlanPage from '@app/pages/admin/EditarPlanPage';
 import { CrearPlanPage } from '@app/pages/admin/CrearPlanPage';
+import { PaymentPage } from '@app/pages/pagos/PaymentPage';
 import { ProtectedRoute } from '@app/components/ProtectedRoute';
 import { AdminProtectedRoute } from '@app/components/AdminProtectedRoute';
 import { AdminLayout } from '@app/components/AdminLayout';
@@ -59,7 +61,7 @@ export const router = createBrowserRouter([
     path: '/registro',
     element: <RegisterPage />,
   },
-  
+
   // Rutas de usuario (ESPAÑOL)
   {
     path: '/tablero',
@@ -87,13 +89,32 @@ export const router = createBrowserRouter([
   },
   {
     path: '/planes',
-    element: <PlanesyCoberturasPage />, // Público
+    element: <PlanesyCoberturasPage />,
   },
   {
     path: '/planes-y-coberturas',
-    element: <PlanesyCoberturasPage />, // Público (misma página)
+    element: <PlanesyCoberturasPage />,
   },
-  
+  {
+    path: '/contratacion',
+    element: (
+      <ProtectedRoute>
+        <ContratacionPage />
+      </ProtectedRoute>
+    ),
+  },
+
+  // Pagos — regularización de suscripciones con pago pendiente
+  // Uso: /pagos?suscripcion=<subscriptionId>
+  {
+    path: '/pagos',
+    element: (
+      <ProtectedRoute>
+        <PaymentPage />
+      </ProtectedRoute>
+    ),
+  },
+
   // Rutas de Mascotas
   {
     path: '/mascotas',
@@ -111,7 +132,7 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  
+
   // Rutas de Bonificaciones
   {
     path: '/bonificaciones',
@@ -137,7 +158,7 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  
+
   {
     path: '/chat',
     element: (
@@ -154,7 +175,7 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  
+
   // Rutas de administración (ESPAÑOL)
   {
     path: '/admin',

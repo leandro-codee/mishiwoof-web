@@ -12,7 +12,7 @@ import type {
   CreateBenefitRequest,
 } from '../../../application/dto/PlanDTO';
 
-const BASE = '/api/v1';
+const BASE = '';
 
 export const plansApi = {
   // ==================== PLANS ====================

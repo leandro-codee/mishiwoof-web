@@ -5,7 +5,7 @@
 import { httpClient } from '@shared/infrastructure/http/base.client';
 import type { IndicatorResponse, CreateIndicatorRequest, SyncFromCMFResult } from '../../../application/dto/IndicatorDTO';
 
-const BASE = '/api/v1/indicators';
+const BASE = '/indicators';
 
 export type SyncFromCMFOptions = {
   date?: string;   // YYYY-MM-DD

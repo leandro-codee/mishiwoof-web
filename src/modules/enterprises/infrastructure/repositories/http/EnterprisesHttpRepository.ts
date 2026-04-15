@@ -12,7 +12,7 @@ import type {
   AddMembershipRequest,
 } from '../../../application/dto/EnterpriseDTO';
 
-const BASE = '/api/v1/enterprises';
+const BASE = '/enterprises';
 
 export const enterprisesApi = {
   list(): Promise<EnterpriseResponse[]> {

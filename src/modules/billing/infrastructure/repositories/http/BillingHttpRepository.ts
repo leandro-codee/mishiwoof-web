@@ -6,6 +6,8 @@ import { httpClient } from '@shared/infrastructure/http/base.client';
 import type {
   SubscriptionResponse,
   CreateSubscriptionRequest,
+  CreateSubscriptionBatchRequest,
+  SubscriptionBatchResponse,
   PaymentMethodResponse,
   TokenizePaymentMethodRequest,
   PaymentAttemptResponse,
@@ -14,7 +16,7 @@ import type {
   CancelSubscriptionRequest,
 } from '../../../application/dto/BillingDTO';
 
-const BILLING = '/api/v1/billing';
+const BILLING = '/billing';
 
 export const billingApi = {
   // Payment methods
@@ -38,9 +40,18 @@ export const billingApi = {
     return httpClient.delete(`${BILLING}/payment-methods/${id}`);
   },
 
-  // Subscriptions
+  /**
+   * Suscripciones: un solo POST /subscriptions sirve para 1 o N líneas (mascota+plan).
+   * Así los cambios de contrato van contra un único endpoint; el cuerpo distingue unitario vs `items`.
+   * Cobro lote: POST /subscriptions/batch/:id/pay (misma forma de body que el pago unitario).
+   */
   createSubscription(body: CreateSubscriptionRequest): Promise<SubscriptionResponse> {
     return httpClient.post<SubscriptionResponse>(`${BILLING}/subscriptions`, body);
+  },
+
+  /** Cuerpo con `items` → varias suscripciones PENDING; misma URL que createSubscription. */
+  createSubscriptionBatch(body: CreateSubscriptionBatchRequest): Promise<SubscriptionBatchResponse> {
+    return httpClient.post<SubscriptionBatchResponse>(`${BILLING}/subscriptions`, body);
   },
 
   listSubscriptions(): Promise<SubscriptionResponse[]> {
@@ -53,6 +64,14 @@ export const billingApi = {
 
   processPayment(body: ProcessPaymentRequest): Promise<PaymentAttemptResponse> {
     return httpClient.post<PaymentAttemptResponse>(`${BILLING}/subscriptions/${body.subscriptionId}/pay`, body);
+  },
+
+  /** Misma forma que el pago unitario; `:id` es el id del batch (raíz de la respuesta al crear el lote). */
+  processSubscriptionBatchPay(
+    batchId: string,
+    body: Pick<ProcessPaymentRequest, 'cardToken' | 'idempotencyKey'>,
+  ): Promise<PaymentAttemptResponse> {
+    return httpClient.post<PaymentAttemptResponse>(`${BILLING}/subscriptions/batch/${batchId}/pay`, body);
   },
 
   retryPayment(subscriptionId: string, body: RetryPaymentRequest): Promise<PaymentAttemptResponse> {

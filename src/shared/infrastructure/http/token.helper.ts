@@ -9,7 +9,14 @@ import { authStore } from '@shared/infrastructure/auth/auth.store';
  */
 export function getInternalJwtToken(): string | null {
   try {
-    return authStore.getAccessToken() ?? localStorage.getItem('auth_token') ?? sessionStorage.getItem('auth_token') ?? null;
+    return (
+      authStore.getAccessToken() ??
+      localStorage.getItem('mishiwoof_access_token') ??
+      localStorage.getItem('accessToken') ??
+      localStorage.getItem('auth_token') ??
+      sessionStorage.getItem('auth_token') ??
+      null
+    );
   } catch (error) {
     console.error('[TokenHelper] Error getting internal JWT token:', error);
     return null;

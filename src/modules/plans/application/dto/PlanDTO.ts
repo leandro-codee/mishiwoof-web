@@ -37,6 +37,8 @@ export interface Plan {
   basePriceCLP: number;
   isActive: boolean;
   isPublished: boolean;
+  /** Texto comercial / resumen si el backend lo expone */
+  description?: string;
   termsPdfUrl?: string;
   imageUrl?: string;
   color?: string;

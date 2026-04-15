@@ -16,7 +16,8 @@ import type {
   ConfirmEmailRequest,
 } from '../../../application/dto/AuthDTO';
 
-const BASE = '/api/v1/auth';
+/** Relativo a VITE_API_BASE_URL (incluye /api/v1) */
+const BASE = '/auth';
 
 export const authApi = {
   async register(body: RegisterRequest): Promise<RegisterResponse> {

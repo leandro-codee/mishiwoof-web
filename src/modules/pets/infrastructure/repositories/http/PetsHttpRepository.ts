@@ -5,7 +5,7 @@
 import { httpClient } from '@shared/infrastructure/http/base.client';
 import type { PetResponse, CreatePetRequest, UpdatePetRequest } from '../../../application/dto/PetDTO';
 
-const BASE = '/api/v1/pets';
+const BASE = '/pets';
 
 export const petsApi = {
   list(): Promise<PetResponse[]> {

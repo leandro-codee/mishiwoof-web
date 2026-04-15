@@ -5,7 +5,7 @@
 import { httpClient } from '@shared/infrastructure/http/base.client';
 import type { NotificationResponse } from '../../../application/dto/NotificationDTO';
 
-const BASE = '/api/v1/notifications';
+const BASE = '/notifications';
 
 export const notificationsApi = {
   list(params?: { page?: number; limit?: number }): Promise<NotificationResponse[]> {

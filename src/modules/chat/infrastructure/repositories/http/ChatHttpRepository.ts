@@ -10,7 +10,7 @@ import type {
   SendMessageRequest,
 } from '../../../application/dto/ChatDTO';
 
-const BASE = '/api/v1/chat';
+const BASE = '/chat';
 
 export const chatApi = {
   createThread(body: CreateThreadRequest): Promise<ChatThreadResponse> {

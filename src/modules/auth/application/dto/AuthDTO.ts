@@ -49,6 +49,8 @@ export interface RefreshRequest {
 
 export interface RefreshResponse {
   accessToken: string;
+  /** Obligatorio con rotación de refresh: persistir junto al access nuevo. */
+  refreshToken: string;
 }
 
 export interface RequestPasswordResetRequest {

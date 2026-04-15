@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig, type AxiosResponse } from 'axios';
 import { ApiError } from './api.error';
 import { getInternalJwtToken, clearAuthStorage } from './token.helper';
+import { refreshSessionWithRotation, shouldSkipAuthRefreshForUrl } from './refresh-session';
 
 /**
  * Configuration for the HTTP client
@@ -136,13 +137,14 @@ export class HttpClient {
   /**
    * Response error interceptor - handle errors globally
    */
-  private handleResponseError(error: unknown): Promise<never> {
+  private handleResponseError(error: unknown): Promise<AxiosResponse | never> {
     if (!axios.isAxiosError(error)) {
       return Promise.reject(error);
     }
 
     const axiosError = error as AxiosError;
     const statusCode = axiosError.response?.status || 500;
+    const cfg = axiosError.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
 
     // Log error
     console.error(`[HTTP] Error ${statusCode}:`, {
@@ -152,14 +154,36 @@ export class HttpClient {
       data: axiosError.response?.data,
     });
 
-    // Handle authentication errors (401/403)
-    // Only redirect to login if it's a 401 (Unauthorized), not 403 (Forbidden)
-    // 403 means the user is authenticated but doesn't have permission
-    if (statusCode === 401) {
-      this.handleAuthError(statusCode);
+    if (statusCode === 401 && cfg) {
+      const reqUrl = cfg.url ?? '';
+      const fullUrl = reqUrl.startsWith('http') ? reqUrl : `${this.instance.defaults.baseURL ?? ''}${reqUrl}`;
+
+      if (shouldSkipAuthRefreshForUrl(fullUrl) || shouldSkipAuthRefreshForUrl(reqUrl)) {
+        const apiError = ApiError.fromAxiosError(axiosError);
+        return Promise.reject(apiError);
+      }
+
+      if (cfg._retry) {
+        this.handleAuthError(401);
+        return Promise.reject(ApiError.fromAxiosError(axiosError));
+      }
+
+      cfg._retry = true;
+      const baseURL = String(this.instance.defaults.baseURL ?? '');
+
+      return refreshSessionWithRotation(baseURL)
+        .then(({ accessToken }) => {
+          this.setAuthToken(accessToken);
+          cfg.headers = cfg.headers ?? {};
+          cfg.headers.Authorization = `Bearer ${accessToken}`;
+          return this.instance.request(cfg);
+        })
+        .catch(() => {
+          this.handleAuthError(401);
+          return Promise.reject(ApiError.fromAxiosError(axiosError));
+        });
     }
 
-    // Convert to ApiError
     const apiError = ApiError.fromAxiosError(axiosError);
     return Promise.reject(apiError);
   }
@@ -308,7 +332,7 @@ export function createHttpClient(config?: Partial<HttpClientConfig>): HttpClient
 
   if (!baseURL && import.meta.env.PROD) {
     console.warn(
-      '[HTTP] No API URL configured. Set VITE_API_BASE_URL or VITE_PUBLIC_API_URL (e.g. http://localhost:8080).'
+      '[HTTP] No API URL configured. Set VITE_API_BASE_URL or VITE_PUBLIC_API_URL (e.g. http://localhost:4800/api/v1).'
     );
   }
 

@@ -10,7 +10,7 @@ import type {
   PayClaimRequest,
 } from '../../../application/dto/ClaimDTO';
 
-const BASE = '/api/v1/claims';
+const BASE = '/claims';
 
 export const claimsApi = {
   list(): Promise<ClaimResponse[]> {
