@@ -104,7 +104,7 @@ export default function PlanPDFEditorPage() {
   }
 
   // If plan has a PDF path stored, build the proxy download URL
-  const hasPdf = !!(plan.termsPdfUrl || plan.pdfUrl);
+  const hasPdf = !!plan.termsPdfUrl;
   const pdfDownloadUrl = hasPdf && planId ? getPlanPDFDownloadURL(planId) : null;
   const isGenerating = generateMutation.isPending || saveMutation.isPending;
 
