@@ -149,7 +149,7 @@ function BenefitsSection() {
       {isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : (
-        <div className="border rounded-lg overflow-hidden bg-white">
+        <div className="border rounded-lg overflow-x-auto bg-white">
           <Table>
             <TableHeader>
               <TableRow>
@@ -325,7 +325,7 @@ function CoverageTypesSection() {
       {isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : (
-        <div className="border rounded-lg overflow-hidden bg-white">
+        <div className="border rounded-lg overflow-x-auto bg-white">
           <Table>
             <TableHeader>
               <TableRow>

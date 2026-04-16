@@ -126,7 +126,7 @@ export function AdminBankAccountsPage() {
         </Button>
       </div>
 
-      <div className="border rounded-lg overflow-hidden bg-white">
+      <div className="border rounded-lg overflow-x-auto bg-white">
         <Table>
           <TableHeader>
             <TableRow>

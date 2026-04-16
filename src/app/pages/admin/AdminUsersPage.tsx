@@ -33,6 +33,7 @@ import type { CreateUserRequest, UpdateUserRequest, UserResponse } from '@module
 import { getErrorMessage, getValidationDetails } from '@shared/infrastructure/http/api.error';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { UserDetailDialog } from '@app/components/UserDetailDialog';
 
 const ROLES = ['CUSTOMER', 'ADMIN', 'SELLER', 'ENTERPRISE'];
 
@@ -43,6 +44,7 @@ export function AdminUsersPage() {
   const [openEdit, setOpenEdit] = useState(false);
   const [editingUser, setEditingUser] = useState<UserResponse | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [viewingUserId, setViewingUserId] = useState<string | null>(null);
 
   const limit = 10;
   const { data: listData, isLoading: listLoading } = useUsersList({ page, limit });
@@ -157,7 +159,7 @@ export function AdminUsersPage() {
         <Skeleton className="h-64 w-full" />
       ) : (
         <>
-          <div className="border rounded-lg overflow-hidden bg-white">
+          <div className="border rounded-lg overflow-x-auto bg-white">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -174,6 +176,7 @@ export function AdminUsersPage() {
                     <TableCell>{[user.firstName, user.lastName].filter(Boolean).join(' ') || '—'}</TableCell>
                     <TableCell>{user.role}</TableCell>
                     <TableCell className="text-right space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => setViewingUserId(user.id)}>Ver</Button>
                       <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>Editar</Button>
                       <Button variant="destructive" size="sm" onClick={() => handleDelete(user)}>Eliminar</Button>
                     </TableCell>
@@ -303,6 +306,14 @@ export function AdminUsersPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <UserDetailDialog
+        userId={viewingUserId}
+        open={viewingUserId !== null}
+        onOpenChange={(open) => {
+          if (!open) setViewingUserId(null);
+        }}
+      />
     </div>
   );
 }

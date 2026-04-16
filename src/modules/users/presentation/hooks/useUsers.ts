@@ -9,6 +9,7 @@ export const usersKeys = {
   me: ['users', 'me'] as const,
   list: (page?: number, limit?: number) => ['users', 'list', page, limit] as const,
   search: (q: string, page?: number, limit?: number) => ['users', 'search', q, page, limit] as const,
+  detail: (id: string) => ['users', 'detail', id] as const,
 };
 
 export function useMe() {
@@ -63,5 +64,13 @@ export function useDeleteUser() {
   return useMutation({
     mutationFn: usersApi.deleteUser.bind(usersApi),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
+  });
+}
+
+export function useUserDetail(id: string | null | undefined) {
+  return useQuery({
+    queryKey: usersKeys.detail(id ?? ''),
+    queryFn: () => usersApi.getUserDetail(id as string),
+    enabled: !!id,
   });
 }

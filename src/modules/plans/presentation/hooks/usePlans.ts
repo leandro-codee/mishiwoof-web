@@ -8,6 +8,7 @@ import type {
   BulkUpdateCoveragesRequest,
   CreateCoverageTypeRequest,
   CreateBenefitRequest,
+  SavePlanPageConfigRequest,
 } from '../../application/dto/PlanDTO';
 import { toast } from 'sonner';
 
@@ -19,6 +20,8 @@ export const plansKeys = {
   list: (publishedOnly: boolean) => [...plansKeys.lists(), { publishedOnly }] as const,
   details: () => [...plansKeys.all, 'detail'] as const,
   detail: (id: string, withCoverages: boolean) => [...plansKeys.details(), id, { withCoverages }] as const,
+  publicDetail: (id: string) => [...plansKeys.all, 'publicDetail', id] as const,
+  pageConfig: (id: string) => [...plansKeys.all, 'pageConfig', id] as const,
 };
 
 export const coverageTypesKeys = {
@@ -188,6 +191,44 @@ export function useCreateBenefit() {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || 'Error al crear beneficio');
+    },
+  });
+}
+
+// ==================== PUBLIC DETAIL PAGE ====================
+
+export function usePlanDetail(planId: string | undefined) {
+  return useQuery({
+    queryKey: plansKeys.publicDetail(planId ?? ''),
+    queryFn: () => plansApi.getPlanDetail(planId!),
+    enabled: !!planId,
+    retry: false,
+  });
+}
+
+// ==================== ADMIN PAGE CONFIG ====================
+
+export function usePlanPageConfig(planId: string | undefined) {
+  return useQuery({
+    queryKey: plansKeys.pageConfig(planId ?? ''),
+    queryFn: () => plansApi.getPlanPageConfig(planId!),
+    enabled: !!planId,
+  });
+}
+
+export function useSavePlanPageConfig() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ planId, data }: { planId: string; data: SavePlanPageConfigRequest }) =>
+      plansApi.savePlanPageConfig(planId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: plansKeys.pageConfig(variables.planId) });
+      queryClient.invalidateQueries({ queryKey: plansKeys.publicDetail(variables.planId) });
+      toast.success('Configuración de la página guardada');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || 'Error al guardar la configuración');
     },
   });
 }

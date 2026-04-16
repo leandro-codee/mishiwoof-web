@@ -132,8 +132,8 @@ export function RegisterPage() {
               />
               {fieldErrors.password && <p className="text-sm text-red-600 mt-1">{fieldErrors.password}</p>}
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="min-w-0">
                 <Label htmlFor="firstName">Nombre</Label>
                 <Input
                   id="firstName"
@@ -145,7 +145,7 @@ export function RegisterPage() {
                 />
                 {fieldErrors.firstName && <p className="text-sm text-red-600 mt-1">{fieldErrors.firstName}</p>}
               </div>
-              <div>
+              <div className="min-w-0">
                 <Label htmlFor="lastName">Apellido</Label>
                 <Input
                   id="lastName"
@@ -182,8 +182,8 @@ export function RegisterPage() {
               />
               {fieldErrors.phone && <p className="text-sm text-red-600 mt-1">{fieldErrors.phone}</p>}
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="min-w-0">
                 <Label htmlFor="birthDate">Fecha de nacimiento</Label>
                 <Input
                   id="birthDate"
@@ -194,7 +194,7 @@ export function RegisterPage() {
                 />
                 {fieldErrors.birthDate && <p className="text-sm text-red-600 mt-1">{fieldErrors.birthDate}</p>}
               </div>
-              <div>
+              <div className="min-w-0">
                 <Label htmlFor="gender">Género</Label>
                 <Select value={gender} onValueChange={(v) => { setGender(v); setFieldErrors((p) => ({ ...p, gender: '' })); }}>
                   <SelectTrigger className={`mt-1 ${fieldErrors.gender ? 'border-red-500' : ''}`}>
@@ -210,10 +210,10 @@ export function RegisterPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="w-full">
+              <div className="w-full min-w-0">
                 <Label htmlFor="region">Región</Label>
                 <Select value={regionId} onValueChange={(v) => { setRegionId(v); setFieldErrors((p) => ({ ...p, regionId: '' })); }}>
-                  <SelectTrigger className={`mt-1 ${fieldErrors.regionId ? 'border-red-500' : ''}`}>
+                  <SelectTrigger className={`mt-1 truncate ${fieldErrors.regionId ? 'border-red-500' : ''}`}>
                     <SelectValue placeholder="Selecciona región" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px] overflow-y-auto">
@@ -226,10 +226,10 @@ export function RegisterPage() {
                 </Select>
                 {fieldErrors.regionId && <p className="text-sm text-red-600 mt-1">{fieldErrors.regionId}</p>}
               </div>
-              <div className="w-full">
+              <div className="w-full min-w-0">
                 <Label htmlFor="state">Comuna</Label>
                 <Select value={stateId} onValueChange={(v) => { setStateId(v); setFieldErrors((p) => ({ ...p, stateId: '' })); }} disabled={!regionId}>
-                  <SelectTrigger className={`mt-1 ${fieldErrors.stateId ? 'border-red-500' : ''}`}>
+                  <SelectTrigger className={`mt-1 truncate ${fieldErrors.stateId ? 'border-red-500' : ''}`}>
                     <SelectValue placeholder="Selecciona comuna" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px] overflow-y-auto">

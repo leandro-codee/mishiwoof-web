@@ -1,12 +1,34 @@
 /**
  * HomePage Component
- * 
+ *
  * Main home page
  */
 
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@modules/auth/presentation/hooks/useAuth';
+import { usePlans } from '@modules/plans/presentation/hooks/usePlans';
+import { useIndicatorLatest } from '@modules/indicators/presentation/hooks/useIndicators';
+
+const PLAN_CARD_COLORS = ['bg-pink-200', 'bg-blue-200', 'bg-green-200', 'bg-yellow-200', 'bg-purple-200'];
+const PLAN_DOT_COLORS = ['bg-pink-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'];
+const PLAN_FALLBACK_IMAGES = ['path1 img.svg', 'path2 img.svg', 'path3 img.svg', 'path4 img.svg', 'path5 img.svg'];
+
+function formatUF(value: number): string {
+  return new Intl.NumberFormat('es-CL', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function formatCLP(value: number): string {
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    maximumFractionDigits: 0,
+  }).format(Math.round(value));
+}
 
 export function HomePage() {
   const location = useLocation();
@@ -14,13 +36,10 @@ export function HomePage() {
   const { isAuthenticated, user } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
 
-  const plans = [
-    { id: 1, name: 'Plan 01', subtitle: 'First', image: 'path1 img.svg', color: 'bg-pink-200', dotColor: 'bg-blue-500' },
-    { id: 2, name: 'Plan 02', subtitle: 'Only', image: 'path2 img.svg', color: 'bg-blue-200', dotColor: 'bg-blue-500' },
-    { id: 3, name: 'Plan 03', subtitle: 'Always', image: 'path3 img.svg', color: 'bg-green-200', dotColor: 'bg-green-500' },
-    { id: 4, name: 'Plan 04', subtitle: 'Prime', image: 'path4 img.svg', color: 'bg-yellow-200', dotColor: 'bg-yellow-500' },
-    { id: 5, name: 'Plan 05', subtitle: 'Exotic', image: 'path5 img.svg', color: 'bg-purple-200', dotColor: 'bg-purple-500' },
-  ];
+  const { data: plansData = [], isLoading: plansLoading } = usePlans(true);
+  const { data: ufIndicator } = useIndicatorLatest();
+  const ufToday = ufIndicator?.uf_value ?? ufIndicator?.value ?? 0;
+  const plans = plansData.filter((p) => p.isPublished);
 
   const steps = [
     { icon: 'upload-cloud icon.png', text: 'Sube boleta y formulario' },
@@ -100,24 +119,31 @@ export function HomePage() {
               </div>
             </nav>
 
+            {/* Hero Tagline */}
+            <div className="text-center mb-10 md:mb-14">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black leading-tight">
+                En <span className="text-[#FF6F61]">mishiwoof</span>
+                <br />
+                cuidamos su salud, para que tú solo te preocupes de darle amor
+              </h1>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-4 md:mb-6">
-                  ¿Quiénes somos?
-                </h1>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black mb-4 md:mb-6">
+                  Somos
+                </h2>
                 <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor 
-                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
-                  exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute 
-                  irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla 
-                  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia 
-                  deserunt mollit anim id est laborum.
+                  Somos una empresa dedicada al bienestar integral de las mascotas en Chile, especializada en planes de asistencia y salud con cobertura a nivel nacional. Nuestro propósito es apoyar a las familias en la tenencia responsable, facilitando el acceso a servicios veterinarios de calidad, prevención y atención oportuna.
+                </p>
+                <p className="text-gray-600 text-sm md:text-base leading-relaxed mt-4">
+                  A través de nuestros planes, buscamos no solo proteger la salud de las mascotas, sino también brindar tranquilidad a sus dueños, promoviendo una mejor calidad de vida, cuidado constante y bienestar para quienes son parte fundamental de cada hogar.
                 </p>
               </div>
               <div className="relative flex justify-center md:justify-end">
-                <img 
-                  src="/assets/chica-portada.svg" 
-                  alt="Mujer con perro" 
+                <img
+                  src="/assets/chica-portada.svg"
+                  alt="Mujer con perro"
                   className="w-full max-w-md h-auto"
                 />
               </div>
@@ -135,36 +161,67 @@ export function HomePage() {
               <h2 className="text-3xl md:text-4xl font-bold text-black text-center mb-8 md:mb-12">
                 Mishiwoof Planes
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
-                {plans.map((plan) => (
-                  <div 
-                    key={plan.id} 
-                    className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100"
-                  >
-                    <div className={`${plan.color} h-32 md:h-40 flex items-center justify-center p-4`}>
-                      <img 
-                        src={`/assets/${plan.image}`} 
-                        alt={plan.name} 
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="text-lg md:text-xl font-bold text-black mb-1">{plan.name}</h3>
-                      <p className="text-sm md:text-base font-semibold text-gray-700 mb-3">{plan.subtitle}</p>
-                      <div className="flex items-center justify-between">
-                        <Link 
-                          to="/planes-y-coberturas" 
-                          className="text-sm md:text-base text-black hover:text-[#FF6F61] transition-colors flex items-center gap-1"
-                        >
-                          Más info
-                          <span>→</span>
-                        </Link>
-                        <div className={`w-3 h-3 rounded-full ${plan.dotColor}`}></div>
+              {plansLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} className="h-64 rounded-xl" />
+                  ))}
+                </div>
+              ) : plans.length === 0 ? (
+                <p className="text-center text-gray-500">
+                  No hay planes publicados por el momento.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+                  {plans.map((plan, idx) => {
+                    const cardColor = PLAN_CARD_COLORS[idx % PLAN_CARD_COLORS.length];
+                    const dotColor = PLAN_DOT_COLORS[idx % PLAN_DOT_COLORS.length];
+                    const fallbackImage = PLAN_FALLBACK_IMAGES[idx % PLAN_FALLBACK_IMAGES.length];
+                    const priceCLP = ufToday > 0 ? plan.basePriceUf * ufToday : 0;
+                    return (
+                      <div
+                        key={plan.id}
+                        className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 flex flex-col"
+                      >
+                        <div className={`${cardColor} h-32 md:h-40 flex items-center justify-center p-4`}>
+                          {plan.imageUrl ? (
+                            <img
+                              src={plan.imageUrl}
+                              alt={plan.name}
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <img
+                              src={`/assets/${fallbackImage}`}
+                              alt={plan.name}
+                              className="w-full h-full object-contain"
+                            />
+                          )}
+                        </div>
+                        <div className="p-4 flex flex-col flex-1">
+                          <h3 className="text-lg md:text-xl font-bold text-black mb-1">{plan.name}</h3>
+                          <p className="text-sm md:text-base font-semibold text-[#FF6F61]">
+                            {formatUF(plan.basePriceUf)} UF/mes
+                          </p>
+                          <p className="text-xs md:text-sm text-gray-600 mb-3">
+                            {priceCLP > 0 ? `~ ${formatCLP(priceCLP)} CLP` : 'Precio CLP no disponible'}
+                          </p>
+                          <div className="flex items-center justify-between mt-auto">
+                            <Link
+                              to={`/planes/${plan.id}`}
+                              className="text-sm md:text-base text-black hover:text-[#FF6F61] transition-colors flex items-center gap-1"
+                            >
+                              Más info
+                              <span>→</span>
+                            </Link>
+                            <div className={`w-3 h-3 rounded-full ${dotColor}`}></div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Paso a paso */}
@@ -191,6 +248,51 @@ export function HomePage() {
                     </p>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="bg-[#E0E8FF] px-4 md:px-8 pt-4 md:pt-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg">
+            <h2 className="text-2xl md:text-3xl font-bold text-black text-center mb-8 md:mb-12">
+              ¿Tienes alguna duda?
+            </h2>
+            <div className="space-y-6 md:space-y-8">
+              <div>
+                <h3 className="text-lg md:text-xl font-semibold text-black mb-2">
+                  1. ¿Cómo funciona el plan de asistencia?
+                </h3>
+                <p className="text-gray-600 text-sm md:text-base leading-relaxed">
+                  Cada vez que lleves a tu mascota al veterinario y realicen un procedimiento cubierto por el plan, guarda la boleta con el detalle de las prestaciones. Luego, súbela en la sección de solicitud de bonificación en tu cuenta. En un plazo máximo de 4 días hábiles recibirás el reembolso en tu cuenta bancaria registrada.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg md:text-xl font-semibold text-black mb-2">
+                  2. ¿Cuál es el plazo máximo que tengo para generar una bonificación?
+                </h3>
+                <p className="text-gray-600 text-sm md:text-base leading-relaxed">
+                  El plazo máximo es de 60 días contando la fecha desde que se realizó la atención veterinaria la cual se verá reflejada en la boleta entregada por el centro veterinario.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg md:text-xl font-semibold text-black mb-2">
+                  3. ¿Cómo pago mi plan?
+                </h3>
+                <p className="text-gray-600 text-sm md:text-base leading-relaxed">
+                  A través de nuestra web debes realizar el mandato PAC o PAT el cual se hará el cargo mensualmente mientras tengas contrato vigente con mishiwoof.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg md:text-xl font-semibold text-black mb-2">
+                  4. ¿Una vez comienzan los beneficios dónde puedo atender a mi mascota?
+                </h3>
+                <p className="text-gray-600 text-sm md:text-base leading-relaxed">
+                  Al ser planes de asistencia modalidad libre elección, puedes ir a cualquier centro veterinario del país, lo importante es que al momento de subir las boletas para rendir gastos, debes estar con beneficios activos.
+                </p>
               </div>
             </div>
           </div>

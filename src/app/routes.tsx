@@ -3,6 +3,7 @@ import { DashboardPage } from '@app/pages/dashboard/DashboardPage';
 import { HomePage } from '@app/pages/home/HomePage';
 import { SucursalVirtualPage } from '@app/pages/sucursal-virtual/SucursalVirtualPage';
 import { PlanesyCoberturasPage } from '@app/pages/planes-y-coberturas/PlanesyCoberturasPage';
+import { PlanDetailPage } from '@app/pages/planes-y-coberturas/PlanDetailPage';
 import { ContratacionPage } from '@app/pages/contratacion/ContratacionPage';
 import { LoginPage } from '@app/pages/login/LoginPage';
 import { RegisterPage } from '@app/pages/register/RegisterPage';
@@ -23,6 +24,7 @@ import { AdminVeterinariesPage } from '@app/pages/admin/AdminVeterinariesPage';
 import { AdminBankAccountsPage } from '@app/pages/admin/AdminBankAccountsPage';
 import { AdminPricingRulesPage } from '@app/pages/admin/AdminPricingRulesPage';
 import { AdminIndicatorsPage } from '@app/pages/admin/AdminIndicatorsPage';
+import { AdminAssetsPage } from '@app/pages/admin/AdminAssetsPage';
 // Nuevas páginas
 import { MascotasPage } from '@app/pages/mascotas/MascotasPage';
 import { NuevaMascotaPage } from '@app/pages/mascotas/NuevaMascotaPage';
@@ -31,6 +33,8 @@ import { NuevaBonificacionPage } from '@app/pages/bonificaciones/NuevaBonificaci
 import { DetalleBonificacionPage } from '@app/pages/bonificaciones/DetalleBonificacionPage';
 import EditarPlanPage from '@app/pages/admin/EditarPlanPage';
 import { CrearPlanPage } from '@app/pages/admin/CrearPlanPage';
+import PlanPDFEditorPage from '@app/pages/admin/PlanPDFEditorPage';
+import { AdminPlanPageConfigPage } from '@app/pages/admin/AdminPlanPageConfigPage';
 import { PaymentPage } from '@app/pages/pagos/PaymentPage';
 import { ProtectedRoute } from '@app/components/ProtectedRoute';
 import { AdminProtectedRoute } from '@app/components/AdminProtectedRoute';
@@ -90,6 +94,10 @@ export const router = createBrowserRouter([
   {
     path: '/planes',
     element: <PlanesyCoberturasPage />,
+  },
+  {
+    path: '/planes/:planId',
+    element: <PlanDetailPage />,
   },
   {
     path: '/planes-y-coberturas',
@@ -190,6 +198,8 @@ export const router = createBrowserRouter([
       { path: 'planes', element: <AdminPlansPage /> },
       { path: 'planes/nuevo', element: <CrearPlanPage /> },
       { path: 'planes/:id/editar', element: <EditarPlanPage /> },
+      { path: 'planes/:id/pdf', element: <PlanPDFEditorPage /> },
+      { path: 'planes/:id/pagina', element: <AdminPlanPageConfigPage /> },
       { path: 'usuarios', element: <AdminUsersPage /> },
       { path: 'cupones', element: <AdminCouponsPage /> },
       { path: 'bonificaciones', element: <AdminClaimsPage /> },
@@ -202,6 +212,7 @@ export const router = createBrowserRouter([
       { path: 'cuentas-bancarias', element: <AdminBankAccountsPage /> },
       { path: 'reglas-precio', element: <AdminPricingRulesPage /> },
       { path: 'indicadores', element: <AdminIndicatorsPage /> },
+      { path: 'archivos', element: <AdminAssetsPage /> },
     ],
   },
   {

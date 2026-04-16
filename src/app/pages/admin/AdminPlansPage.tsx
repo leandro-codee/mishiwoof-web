@@ -5,7 +5,7 @@ import { usePlans, useDeletePlan } from '@modules/plans/presentation/hooks/usePl
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Trash2, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, FileText, LayoutTemplate } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -117,7 +117,24 @@ export default function AdminPlansPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate(`/planes/${plan.id}`)}
+                  onClick={() => navigate(`/admin/planes/${plan.id}/pdf`)}
+                  title="Generar PDF"
+                >
+                  <FileText className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/admin/planes/${plan.id}/pagina`)}
+                  title="Configurar página pública"
+                >
+                  <LayoutTemplate className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(`/planes/${plan.id}`, '_blank', 'noopener,noreferrer')}
+                  title="Ver página pública"
                 >
                   <Eye className="h-4 w-4" />
                 </Button>

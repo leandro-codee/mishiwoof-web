@@ -28,3 +28,12 @@ export function getApiHost(): string {
 export function getApiV1BaseURL(): string {
   return `${getApiHost()}${API_V1_PREFIX}`;
 }
+
+/**
+ * Returns just the path prefix `/api/v1` (no host).
+ * Use this for browser-facing URLs (iframe src, img src, download hrefs)
+ * so they go through the Vite dev proxy and avoid mixed-content issues.
+ */
+export function getApiV1Path(): string {
+  return API_V1_PREFIX;
+}

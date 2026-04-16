@@ -10,6 +10,9 @@ import type {
   BulkUpdateCoveragesRequest,
   CreateCoverageTypeRequest,
   CreateBenefitRequest,
+  PlanDetailResponse,
+  PlanPageConfig,
+  SavePlanPageConfigRequest,
 } from '../../../application/dto/PlanDTO';
 
 const BASE = '';
@@ -86,5 +89,24 @@ export const plansApi = {
   
   async createBenefit(data: CreateBenefitRequest): Promise<Benefit> {
     return httpClient.post<Benefit>(`${BASE}/benefits`, data);
+  },
+
+  // ==================== PUBLIC DETAIL PAGE ====================
+
+  async getPlanDetail(planId: string): Promise<PlanDetailResponse> {
+    return httpClient.get<PlanDetailResponse>(`${BASE}/plans/${planId}/detail`);
+  },
+
+  // ==================== ADMIN PAGE CONFIG ====================
+
+  async getPlanPageConfig(planId: string): Promise<PlanPageConfig> {
+    return httpClient.get<PlanPageConfig>(`${BASE}/plans/${planId}/page-config`);
+  },
+
+  async savePlanPageConfig(
+    planId: string,
+    data: SavePlanPageConfigRequest,
+  ): Promise<PlanPageConfig> {
+    return httpClient.put<PlanPageConfig>(`${BASE}/plans/${planId}/page-config`, data);
   },
 };

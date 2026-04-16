@@ -9,6 +9,7 @@ import type {
   ListUsersResponse,
   CreateUserRequest,
   UpdateUserRequest,
+  UserDetailResponse,
 } from '../../../application/dto/UserDTO';
 
 const BASE = '';
@@ -48,5 +49,9 @@ export const usersApi = {
 
   deleteUser(id: string): Promise<void> {
     return httpClient.delete(`${ADMIN}/${id}`);
+  },
+
+  getUserDetail(id: string): Promise<UserDetailResponse> {
+    return httpClient.get<UserDetailResponse>(`${ADMIN}/${id}/detail`);
   },
 };

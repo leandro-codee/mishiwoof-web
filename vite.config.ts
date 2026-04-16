@@ -49,6 +49,9 @@ export default defineConfig(({ mode }) => {
       },
     },
   },
+  optimizeDeps: {
+    include: ['react-pdf', 'pdfjs-dist'],
+  },
   build: {
     sourcemap: true,
     rollupOptions: {
