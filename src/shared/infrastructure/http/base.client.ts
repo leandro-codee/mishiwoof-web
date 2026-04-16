@@ -2,6 +2,7 @@ import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestCo
 import { ApiError } from './api.error';
 import { getInternalJwtToken, clearAuthStorage } from './token.helper';
 import { refreshSessionWithRotation, shouldSkipAuthRefreshForUrl } from './refresh-session';
+import { getApiV1BaseURL } from './api.config';
 
 /**
  * Configuration for the HTTP client
@@ -309,30 +310,16 @@ export class HttpClient {
 }
 
 /**
- * Normaliza la URL base de la API (debe incluir protocolo para que los fetch se ejecuten).
- */
-function normalizeBaseURL(url: string): string {
-  if (!url || typeof url !== 'string') return '';
-  const trimmed = url.trim();
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
-  return `http://${trimmed}`;
-}
-
-/**
  * Create default HTTP client instance.
- * Usa VITE_API_BASE_URL o VITE_PUBLIC_API_URL (mismo valor que apiClient para consistencia).
+ * El prefijo /api/v1 se añade en código (api.config.ts). VITE_API_BASE_URL
+ * debe contener solo el host (p. ej. http://localhost:4800).
  */
 export function createHttpClient(config?: Partial<HttpClientConfig>): HttpClient {
-  const raw =
-    config?.baseURL ||
-    import.meta.env.VITE_API_BASE_URL ||
-    import.meta.env.VITE_PUBLIC_API_URL ||
-    '';
-  const baseURL = normalizeBaseURL(raw);
+  const baseURL = config?.baseURL || getApiV1BaseURL();
 
   if (!baseURL && import.meta.env.PROD) {
     console.warn(
-      '[HTTP] No API URL configured. Set VITE_API_BASE_URL or VITE_PUBLIC_API_URL (e.g. http://localhost:4800/api/v1).'
+      '[HTTP] No API URL configured. Set VITE_API_BASE_URL (host only, e.g. http://localhost:4800).'
     );
   }
 

@@ -1,10 +1,11 @@
 /**
- * Regions API - /api/regions (public endpoints)
+ * Regions API - /api/regions (public endpoints, no versionado)
  */
 
 import { httpClient } from '../http/base.client';
+import { getApiHost } from '../http/api.config';
 
-const BASE = '/api/regions';
+const BASE = `${getApiHost()}/api/regions`;
 
 export interface State {
   id: string;

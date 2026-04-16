@@ -4,12 +4,9 @@ import {
   refreshSessionWithRotation,
   shouldSkipAuthRefreshForUrl,
 } from '@shared/infrastructure/http/refresh-session';
+import { getApiV1BaseURL } from '@shared/infrastructure/http/api.config';
 
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_PUBLIC_API_URL ||
-  'http://localhost:4800/api/v1'
-).replace(/\/$/, '');
+const API_BASE_URL = getApiV1BaseURL();
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
